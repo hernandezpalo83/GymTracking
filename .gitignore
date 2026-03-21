@@ -1,3 +1,6 @@
+# Claude Code (no subir al repo)
+.claude/
+
 # Python
 __pycache__/
 *.py[cod]
