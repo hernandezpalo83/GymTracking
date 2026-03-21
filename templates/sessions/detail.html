@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+
+{% block title %}Sesión {{ session.date|date:"d/m/Y" }} - GymTracking{% endblock %}
+
+{% block page_header %}
+<div class="mb-6 flex items-center gap-3">
+  <a href="{% url 'sessions:list' %}" class="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors">
+    <svg class="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+    </svg>
+  </a>
+  <div class="flex-1">
+    <h1 class="text-2xl font-bold text-gray-900">{{ session.date|date:"l, d M Y" }}</h1>
+    <p class="text-gray-500 text-sm mt-0.5">
+      {% if session.completed %}
+        <span class="text-success-600 font-medium">Completada</span>
+      {% else %}
+        <span class="text-amber-600 font-medium">En progreso</span>
+      {% endif %}
+      {% if session.mood %}&nbsp;&middot;&nbsp;{{ session.get_mood_display }} {{ session.get_mood_emoji }}{% endif %}
+    </p>
+  </div>
+  {% if not session.completed %}
+  <form method="post" action="{% url 'sessions:complete' session.pk %}">
+    {% csrf_token %}
+    <button type="submit"
+            class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-success-600 text-white text-sm font-semibold hover:bg-success-700 transition-colors">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+      </svg>
+      Completar
+    </button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-4">
+
+  <!-- Session summary -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+    <div class="grid grid-cols-3 gap-4 text-center">
+      <div>
+        <p class="text-2xl font-bold text-primary-600">{{ session_exercises.count }}</p>
+        <p class="text-xs text-gray-500 mt-1">Ejercicios</p>
+      </div>
+      <div>
+        {% if session.start_time and session.end_time %}
+        <p class="text-2xl font-bold text-gray-800">{{ session.get_duration_minutes }}</p>
+        <p class="text-xs text-gray-500 mt-1">Minutos</p>
+        {% else %}
+        <p class="text-2xl font-bold text-gray-300">-</p>
+        <p class="text-xs text-gray-500 mt-1">Minutos</p>
+        {% endif %}
+      </div>
+      <div>
+        <p class="text-2xl font-bold text-success-600">{{ session.get_total_volume|floatformat:0 }}</p>
+        <p class="text-xs text-gray-500 mt-1">Vol. total (kg)</p>
+      </div>
+    </div>
+    {% if session.plan %}
+    <div class="mt-4 pt-4 border-t border-gray-50 flex items-center gap-2 text-sm text-gray-500">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75"/>
+      </svg>
+      Plan: <span class="font-medium text-gray-700">{{ session.plan.name }}</span>
+    </div>
+    {% endif %}
+    {% if session.notes %}
+    <div class="mt-3 pt-3 border-t border-gray-50">
+      <p class="text-sm text-gray-600">{{ session.notes }}</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Exercises -->
+  {% for se in session_exercises %}
+  {% with is_cardio=se.exercise.exercise_type|stringformat:"s" %}
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="flex items-center justify-between px-5 py-3 border-b border-gray-50">
+      <div>
+        <h3 class="font-semibold text-gray-900">{{ se.exercise.name }}</h3>
+        {% if se.exercise.exercise_type == 'cardio' %}
+        <span class="text-xs text-indigo-500 font-medium">Cardio</span>
+        {% endif %}
+      </div>
+      <span class="text-xs text-gray-400">{{ se.sets_completed }} series</span>
+    </div>
+    {% if se.sets.all %}
+    <div class="divide-y divide-gray-50">
+      {% if se.exercise.exercise_type == 'cardio' %}
+      <!-- Cardio header -->
+      <div class="grid grid-cols-4 px-5 py-2 text-xs font-medium text-gray-400 uppercase tracking-wider">
+        <span>Serie</span>
+        <span class="text-center">Tiempo</span>
+        <span class="text-center">Distancia</span>
+        <span class="text-center">Ritmo</span>
+      </div>
+      {% for s in se.sets.all %}
+      <div class="grid grid-cols-4 px-5 py-2.5 {% if not s.completed %}opacity-50{% endif %}">
+        <span class="text-sm font-medium text-gray-600">{{ s.set_number }}</span>
+        <span class="text-sm text-center text-gray-900 font-semibold">{{ s.get_duration_display|default:"—" }}</span>
+        <span class="text-sm text-center text-gray-900 font-semibold">
+          {% if s.distance_meters %}{{ s.distance_meters|floatformat:0 }} m{% else %}—{% endif %}
+        </span>
+        <span class="text-sm text-center text-gray-400">{{ s.get_pace_display|default:"—" }}</span>
+      </div>
+      {% endfor %}
+      {% else %}
+      <!-- Strength header -->
+      <div class="grid grid-cols-4 px-5 py-2 text-xs font-medium text-gray-400 uppercase tracking-wider">
+        <span>Serie</span>
+        <span class="text-center">Reps</span>
+        <span class="text-center">Peso</span>
+        <span class="text-center">Vol.</span>
+      </div>
+      {% for s in se.sets.all %}
+      <div class="grid grid-cols-4 px-5 py-2.5 {% if not s.completed %}opacity-50{% endif %}">
+        <span class="text-sm font-medium text-gray-600">{{ s.set_number }}</span>
+        <span class="text-sm text-center text-gray-900 font-semibold">{{ s.reps|default:"—" }}</span>
+        <span class="text-sm text-center text-gray-900 font-semibold">
+          {% if s.weight %}{{ s.weight }} kg{% else %}—{% endif %}
+        </span>
+        <span class="text-sm text-center text-gray-400">
+          {% with vol=s.get_volume %}{% if vol %}{{ vol|floatformat:1 }} kg{% else %}—{% endif %}{% endwith %}
+        </span>
+      </div>
+      {% endfor %}
+      {% endif %}
+    </div>
+    {% else %}
+    <p class="px-5 py-3 text-sm text-gray-400">Sin series registradas</p>
+    {% endif %}
+  </div>
+  {% endwith %}
+  {% empty %}
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
+    <p class="text-gray-400 text-sm">No hay ejercicios en esta sesión.</p>
+    <a href="{% url 'sessions:log' session.pk %}"
+       class="inline-flex items-center gap-2 mt-3 font-medium rounded-xl bg-primary-50 text-primary-700 px-4 py-2 text-sm hover:bg-primary-100">
+      Añadir ejercicios
+    </a>
+  </div>
+  {% endfor %}
+
+  <!-- Actions -->
+  <div class="flex gap-3 pb-4">
+    <a href="{% url 'sessions:log' session.pk %}"
+       class="flex-1 inline-flex items-center justify-center gap-2 font-semibold rounded-xl bg-primary-600 text-white px-4 py-3 text-sm hover:bg-primary-700 transition-colors">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+      </svg>
+      Continuar sesión
+    </a>
+    <a href="{% url 'sessions:edit' session.pk %}"
+       class="inline-flex items-center justify-center gap-2 font-medium rounded-xl bg-gray-100 text-gray-700 px-4 py-3 text-sm hover:bg-gray-200 transition-colors">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
+      </svg>
+      Editar
+    </a>
+  </div>
+</div>
+{% endblock %}
+

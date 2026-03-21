@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ plan.name }} - GymTracking{% endblock %}
+
+{% block page_header %}
+<div class="mb-6 flex items-center gap-3">
+  <a href="{% url 'plans:list' %}" class="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors touch-target flex items-center justify-center">
+    <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+    </svg>
+  </a>
+  <div class="flex-1 min-w-0">
+    <div class="flex items-center gap-2 flex-wrap">
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white truncate">{{ plan.name }}</h1>
+      {% if plan.is_active %}
+      <span class="flex-shrink-0 px-2 py-0.5 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 rounded-full text-xs font-medium">Activo</span>
+      {% endif %}
+    </div>
+    <p class="text-gray-500 dark:text-gray-400 text-sm mt-0.5">{{ plan.get_plan_type_display }}{% if plan.assigned_to %} &mdash; {{ plan.assigned_to.get_full_name|default:plan.assigned_to.username }}{% endif %}</p>
+  </div>
+  <div class="flex items-center gap-2 flex-shrink-0">
+    <a href="#add-exercise-section"
+       class="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors touch-target">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+      </svg>
+      <span class="hidden sm:inline">Añadir</span>
+    </a>
+    <a href="{% url 'plans:edit' plan.pk %}"
+       class="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors touch-target">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
+      </svg>
+      <span class="hidden sm:inline">Editar</span>
+    </a>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Add exercise form -->
+<div id="add-exercise-section" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 mb-5">
+  <h3 class="font-semibold text-gray-900 dark:text-white mb-4">Añadir ejercicio al plan</h3>
+  <form method="post" action="{% url 'plans:add_exercise' plan.pk %}">
+    {% csrf_token %}
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
+      <div class="col-span-2 sm:col-span-1">
+        <label class="block text-xs font-medium text-gray-600 mb-1">Ejercicio</label>
+        {{ add_exercise_form.exercise }}
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">Día</label>
+        {{ add_exercise_form.day_of_week }}
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">Series</label>
+        {{ add_exercise_form.sets }}
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">Reps</label>
+        {{ add_exercise_form.reps }}
+      </div>
+    </div>
+    <div class="grid grid-cols-2 gap-3 mb-3">
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">Peso objetivo (kg)</label>
+        {{ add_exercise_form.target_weight }}
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">Descanso (seg)</label>
+        {{ add_exercise_form.rest_seconds }}
+      </div>
+    </div>
+    <button type="submit"
+            class="inline-flex items-center gap-2 font-semibold rounded-xl bg-primary-600 text-white px-4 py-2.5 text-sm hover:bg-primary-700 transition-colors">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+      </svg>
+      Añadir ejercicio
+    </button>
+  </form>
+</div>
+
+<!-- Plan by day -->
+<div class="space-y-4">
+  {% for day_num, day_name in day_choices %}
+  {% with day_exercises=exercises_by_day|default_if_none:"" %}
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="flex items-center justify-between px-5 py-3 bg-gray-50 border-b border-gray-100">
+      <h3 class="font-semibold text-gray-800">{{ day_name }}</h3>
+      <span class="text-xs text-gray-400">
+        {% for ex in exercises_by_day|default_if_none:"" %}{% endfor %}
+      </span>
+    </div>
+
+    {% with day_exs=exercises_by_day %}
+    {% if exercises_by_day %}
+    <div class="divide-y divide-gray-50">
+      {% for plan_ex in exercises_by_day.day_num %}
+        <div class="px-5 py-3">exercise</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+  </div>
+  {% endwith %}
+  {% endfor %}
+</div>
+
+<!-- Use JS to render the plan exercises by day -->
+<script>
+  const exercisesByDay = {
+    {% for day_num, day_exercises in exercises_by_day.items %}
+    {{ day_num }}: [
+      {% for pe in day_exercises %}
+      {
+        id: {{ pe.pk }},
+        name: "{{ pe.exercise.name|escapejs }}",
+        sets: {{ pe.sets }},
+        reps: {{ pe.reps }},
+        weight: "{% if pe.target_weight %}{{ pe.target_weight }}kg{% else %}-{% endif %}",
+        rest: {{ pe.rest_seconds }},
+        delete_url: "{% url 'plans:remove_exercise' plan.pk pe.pk %}"
+      }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ]{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  };
+
+  const dayNames = {
+    {% for day_num, day_name in day_choices %}
+    {{ day_num }}: "{{ day_name }}"{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  };
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('plan-days-container');
+    if (!container) return;
+
+    let html = '';
+    for (const [dayNum, dayName] of Object.entries(dayNames)) {
+      const exercises = exercisesByDay[dayNum] || [];
+      html += `
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="flex items-center justify-between px-5 py-3 bg-gray-50 border-b border-gray-100">
+            <h3 class="font-semibold text-gray-800">${dayName}</h3>
+            <span class="text-xs text-gray-400">${exercises.length} ejercicio${exercises.length !== 1 ? 's' : ''}</span>
+          </div>
+          ${exercises.length > 0 ? `
+          <div class="divide-y divide-gray-50">
+            ${exercises.map(ex => `
+              <div class="flex items-center gap-3 px-5 py-3">
+                <div class="flex-1 min-w-0">
+                  <p class="font-medium text-gray-900 text-sm truncate">${ex.name}</p>
+                  <p class="text-xs text-gray-400 mt-0.5">${ex.sets} series × ${ex.reps} reps &middot; ${ex.weight} &middot; ${ex.rest}s descanso</p>
+                </div>
+                <form method="post" action="${ex.delete_url}" class="flex-shrink-0">
+                  <input type="hidden" name="csrfmiddlewaretoken" value="${getCsrf()}">
+                  <button type="submit" class="p-1.5 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                  </button>
+                </form>
+              </div>
+            `).join('')}
+          </div>` : `
+          <div class="px-5 py-4 text-sm text-gray-400 text-center">Sin ejercicios este día</div>`}
+        </div>`;
+    }
+    container.innerHTML = html;
+  });
+
+  function getCsrf() {
+    return document.querySelector('[name=csrfmiddlewaretoken]') ?
+      document.querySelector('[name=csrfmiddlewaretoken]').value : '';
+  }
+</script>
+
+<!-- Repeat plan action -->
+{% if request.user.is_superuser or plan.created_by == request.user %}
+<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 mb-5 flex items-center justify-between">
+  <div>
+    <p class="text-sm font-medium text-gray-700 dark:text-gray-300">¿Plan terminado?</p>
+    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Genera el mismo plan para la siguiente {{ plan.get_plan_type_display|lower }}</p>
+  </div>
+  <form method="post" action="{% url 'plans:repeat' plan.pk %}">
+    {% csrf_token %}
+    <button type="submit"
+            class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-green-600 hover:bg-green-700 text-white text-sm font-semibold touch-target transition-colors">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/>
+      </svg>
+      Repetir plan
+    </button>
+  </form>
+</div>
+{% endif %}
+
+<div id="plan-days-container" class="space-y-4">
+  <!-- Rendered by JS above -->
+  {% for day_num, day_name in day_choices %}
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden animate-pulse">
+    <div class="px-5 py-3 bg-gray-50 border-b border-gray-100 h-10"></div>
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

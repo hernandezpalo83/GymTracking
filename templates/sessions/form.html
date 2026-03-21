@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block meta_description %}{{ title }} — GymTracking{% endblock %}
+
+{% block page_header %}
+<div class="mb-6 flex items-center gap-3">
+  <a href="{% url 'sessions:list' %}" class="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+    <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+    </svg>
+  </a>
+  <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ title }}</h1>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-lg">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+    <form method="post" class="space-y-5">
+      {% csrf_token %}
+
+      <!-- Fecha (obligatorio) -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Fecha <span class="text-red-500">*</span>
+        </label>
+        {{ form.date }}
+        {% if form.date.errors %}<p class="text-xs text-red-600 dark:text-red-400 mt-1">{{ form.date.errors.0 }}</p>{% endif %}
+      </div>
+
+      <!-- Plan (opcional) con indicación clara -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Plan de entrenamiento
+          <span class="ml-1 text-xs font-normal text-gray-400 dark:text-gray-500">(opcional)</span>
+        </label>
+        {{ form.plan }}
+        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+          Puedes registrar la sesión sin un plan y añadir ejercicios libremente.
+        </p>
+      </div>
+
+      <!-- Horas -->
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Hora inicio <span class="text-xs font-normal text-gray-400">(opcional)</span>
+          </label>
+          {{ form.start_time }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Hora fin <span class="text-xs font-normal text-gray-400">(opcional)</span>
+          </label>
+          {{ form.end_time }}
+        </div>
+      </div>
+
+      <!-- Estado de ánimo -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Estado de ánimo <span class="text-xs font-normal text-gray-400">(opcional)</span>
+        </label>
+        {{ form.mood }}
+      </div>
+
+      <!-- Notas -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Notas <span class="text-xs font-normal text-gray-400">(opcional)</span>
+        </label>
+        {{ form.notes }}
+      </div>
+
+      <!-- Acciones -->
+      <div class="pt-2 flex gap-3 border-t border-gray-100 dark:border-gray-700">
+        <button type="submit"
+                class="flex-1 inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-200 bg-indigo-600 text-white px-6 py-3.5 text-base hover:bg-indigo-700 active:scale-[0.98] touch-target">
+          {{ submit_text }}
+        </button>
+        <a href="{% url 'sessions:list' %}"
+           class="inline-flex items-center justify-center font-medium rounded-xl transition-all bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-5 py-3.5 text-base hover:bg-gray-200 dark:hover:bg-gray-600 touch-target">
+          Cancelar
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Info box: sesión libre -->
+  <div class="mt-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl p-4 border border-indigo-100 dark:border-indigo-800">
+    <div class="flex gap-3">
+      <svg class="w-5 h-5 text-indigo-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/>
+      </svg>
+      <div>
+        <p class="text-sm font-medium text-indigo-700 dark:text-indigo-300">Sesión libre</p>
+        <p class="text-xs text-indigo-600 dark:text-indigo-400 mt-0.5">
+          No necesitas un plan. Tras crear la sesión podrás añadir ejercicios individuales directamente.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

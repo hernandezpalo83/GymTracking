@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ exercise.name }}{% endblock %}
+{% block meta_description %}{{ exercise.name }} — {{ exercise.get_exercise_type_display }} en GymTracking{% endblock %}
+
+{% block page_header %}
+<div class="mb-6 flex items-center gap-3">
+  <a href="{% url 'exercises:list' %}" class="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+    <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+    </svg>
+  </a>
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ exercise.name }}</h1>
+    <p class="text-gray-500 dark:text-gray-400 text-sm mt-0.5">{{ exercise.get_exercise_type_display }}</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl space-y-4">
+  <!-- Main info card -->
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+    <div class="flex items-start justify-between mb-4">
+      <div class="w-12 h-12 rounded-xl flex items-center justify-center
+        {% if exercise.exercise_type == 'strength' %}bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400
+        {% elif exercise.exercise_type == 'cardio' %}bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400
+        {% else %}bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400{% endif %}">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5"/>
+        </svg>
+      </div>
+      {% if request.user.is_superuser %}
+      <div class="flex gap-2">
+        <a href="{% url 'exercises:edit' exercise.pk %}"
+           class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125"/>
+          </svg>
+          Editar
+        </a>
+        <a href="{% url 'exercises:delete' exercise.pk %}"
+           class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
+          </svg>
+          Eliminar
+        </a>
+      </div>
+      {% endif %}
+    </div>
+
+    {% if exercise.image %}
+    <img src="{{ exercise.image.url }}" alt="{{ exercise.name }}" class="w-full h-48 object-cover rounded-xl mb-4">
+    {% endif %}
+
+    {% if exercise.description %}
+    <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">{{ exercise.description }}</p>
+    {% endif %}
+  </div>
+
+  <!-- Details -->
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+    <h2 class="font-semibold text-gray-900 dark:text-white mb-4">Detalles</h2>
+    <div class="space-y-3">
+      <div class="flex items-center justify-between">
+        <span class="text-sm text-gray-500 dark:text-gray-400">Tipo</span>
+        <span class="px-2.5 py-1 rounded-full text-xs font-medium
+          {% if exercise.exercise_type == 'strength' %}bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300
+          {% elif exercise.exercise_type == 'cardio' %}bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300
+          {% else %}bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300{% endif %}">
+          {{ exercise.get_exercise_type_display }}
+        </span>
+      </div>
+      <div class="flex items-center justify-between">
+        <span class="text-sm text-gray-500 dark:text-gray-400">Visibilidad</span>
+        <span class="px-2.5 py-1 rounded-full text-xs font-medium {% if exercise.is_public %}bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300{% else %}bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300{% endif %}">
+          {% if exercise.is_public %}Público{% else %}Privado{% endif %}
+        </span>
+      </div>
+      {% if exercise.created_by %}
+      <div class="flex items-center justify-between">
+        <span class="text-sm text-gray-500 dark:text-gray-400">Creado por</span>
+        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ exercise.created_by.get_full_name|default:exercise.created_by.username }}</span>
+      </div>
+      {% endif %}
+      <div class="flex items-center justify-between">
+        <span class="text-sm text-gray-500 dark:text-gray-400">Fecha de creación</span>
+        <span class="text-sm text-gray-700 dark:text-gray-300">{{ exercise.created_at|date:"d/m/Y" }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Muscle groups -->
+  {% if exercise.muscle_groups.all %}
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+    <h2 class="font-semibold text-gray-900 dark:text-white mb-3">Grupos musculares</h2>
+    <div class="flex flex-wrap gap-2">
+      {% for mg in exercise.muscle_groups.all %}
+      <span class="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-xl text-sm font-medium">{{ mg }}</span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

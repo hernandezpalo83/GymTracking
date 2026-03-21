@@ -1,0 +1,48 @@
+/* GymTracking custom styles */
+
+/* Smooth scrollbar hiding for horizontal scroll chips */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide:- webkit-scrollbar {
+  display: none;
+}
+
+/* Touch targets */
+.touch-target {
+  min-height: 48px;
+  min-width: 48px;
+}
+
+/* Line clamp */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Pulse once animation for newly added sets */
+@keyframes pulse-once {
+  0% { background-color: #eff6ff; }
+  100% { background-color: transparent; }
+}
+.animate-pulse-once {
+  animation: pulse-once 1s ease-out forwards;
+}
+
+/* Number input arrows hidden on mobile */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* Safe area for bottom nav */
+.bottom-nav-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}

@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ target.get_full_name|default:target.username }} — Detalle{% endblock %}
+{% block meta_description %}Detalle del usuario {{ target.username }} en GymTracking{% endblock %}
+
+{% block page_header %}
+<div class="flex items-center gap-4 mb-6">
+  <a href="{% url 'users:admin_user_list' %}"
+     class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+    </svg>
+  </a>
+  <div class="flex-1">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ target.get_full_name|default:target.username }}</h1>
+    <p class="text-sm text-gray-500 dark:text-gray-400">@{{ target.username }}</p>
+  </div>
+  <a href="{% url 'users:admin_user_edit' target.pk %}"
+     class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2.5 rounded-xl transition-colors">
+    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
+    </svg>
+    Editar
+  </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <!-- Main info -->
+  <div class="lg:col-span-2 space-y-4">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700">
+      <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-4">Información personal</h2>
+      <dl class="space-y-3">
+        <div class="flex justify-between">
+          <dt class="text-sm text-gray-500 dark:text-gray-400">Nombre completo</dt>
+          <dd class="text-sm font-medium text-gray-900 dark:text-white">{{ target.get_full_name|default:"—" }}</dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-sm text-gray-500 dark:text-gray-400">Email</dt>
+          <dd class="text-sm font-medium text-gray-900 dark:text-white">{{ target.email|default:"—" }}</dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-sm text-gray-500 dark:text-gray-400">Fecha de registro</dt>
+          <dd class="text-sm font-medium text-gray-900 dark:text-white">{{ target.date_joined|date:"d/m/Y" }}</dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-sm text-gray-500 dark:text-gray-400">Último acceso</dt>
+          <dd class="text-sm font-medium text-gray-900 dark:text-white">{{ target.last_login|date:"d/m/Y H:i"|default:"Nunca" }}</dd>
+        </div>
+        {% if target.bio %}
+        <div>
+          <dt class="text-sm text-gray-500 dark:text-gray-400 mb-1">Bio</dt>
+          <dd class="text-sm text-gray-700 dark:text-gray-300">{{ target.bio }}</dd>
+        </div>
+        {% endif %}
+      </dl>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700">
+      <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-4">Rol y permisos</h2>
+      <dl class="space-y-3">
+        <div class="flex justify-between">
+          <dt class="text-sm text-gray-500 dark:text-gray-400">Rol</dt>
+          <dd>
+            {% if target.is_superuser %}
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300">Superusuario</span>
+            {% elif target.is_supervisor %}
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">Supervisor</span>
+            {% else %}
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">Atleta</span>
+            {% endif %}
+          </dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-sm text-gray-500 dark:text-gray-400">Estado</dt>
+          <dd>
+            {% if target.is_active %}
+              <span class="inline-flex items-center gap-1 text-sm text-green-600 font-medium">
+                <span class="w-2 h-2 rounded-full bg-green-500"></span>Activo
+              </span>
+            {% else %}
+              <span class="inline-flex items-center gap-1 text-sm text-gray-400 font-medium">
+                <span class="w-2 h-2 rounded-full bg-gray-300"></span>Inactivo
+              </span>
+            {% endif %}
+          </dd>
+        </div>
+        {% if target.supervised_by %}
+        <div class="flex justify-between">
+          <dt class="text-sm text-gray-500 dark:text-gray-400">Supervisado por</dt>
+          <dd class="text-sm font-medium text-gray-900 dark:text-white">{{ target.supervised_by.get_full_name|default:target.supervised_by.username }}</dd>
+        </div>
+        {% endif %}
+      </dl>
+    </div>
+  </div>
+
+  <!-- Stats sidebar -->
+  <div class="space-y-4">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700">
+      <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-4">Estadísticas</h2>
+      <div class="space-y-4">
+        <div class="text-center p-4 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl">
+          <p class="text-3xl font-bold text-indigo-600 dark:text-indigo-400">{{ sessions_count }}</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Sesiones totales</p>
+        </div>
+        <div class="text-center p-4 bg-purple-50 dark:bg-purple-900/30 rounded-xl">
+          <p class="text-3xl font-bold text-purple-600 dark:text-purple-400">{{ plans_count }}</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Planes asignados</p>
+        </div>
+      </div>
+    </div>
+
+    {% if target != request.user %}
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700">
+      <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Acciones</h2>
+      <form method="post" action="{% url 'users:admin_user_toggle_active' target.pk %}">
+        {% csrf_token %}
+        <button type="submit"
+          class="w-full py-2.5 px-4 rounded-xl font-medium text-sm transition-colors {% if target.is_active %}bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400{% else %}bg-green-50 text-green-600 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-400{% endif %}">
+          {% if target.is_active %}Desactivar cuenta{% else %}Activar cuenta{% endif %}
+        </button>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

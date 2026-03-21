@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Sesiones{% endblock %}
+{% block meta_description %}Tu historial de entrenamientos en GymTracking{% endblock %}
+
+{% block page_header %}
+<div class="mb-6 flex items-center justify-between">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Mis Sesiones</h1>
+    <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Historial de entrenamientos</p>
+  </div>
+  <a href="{% url 'sessions:create' %}"
+     class="inline-flex items-center gap-2 font-semibold rounded-xl bg-indigo-600 text-white px-4 py-3 text-sm hover:bg-indigo-700 transition-colors touch-target">
+    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+    </svg>
+    Nueva sesión
+  </a>
+</div>
+{% endblock %}
+
+{% block content %}
+{% if sessions %}
+<div class="space-y-3">
+  {% for session in sessions %}
+  <a href="{% url 'sessions:detail' session.pk %}"
+     class="block bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 hover:shadow-md hover:border-indigo-100 dark:hover:border-indigo-700 transition-all">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0
+        {% if session.completed %}bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400{% else %}bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400{% endif %}">
+        {% if session.completed %}
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+        </svg>
+        {% else %}
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        {% endif %}
+      </div>
+
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between mb-0.5">
+          <p class="font-semibold text-gray-900 dark:text-white text-sm">{{ session.date|date:"l, d M Y" }}</p>
+          {% if session.mood %}
+          <span class="text-base">{{ session.get_mood_emoji }}</span>
+          {% endif %}
+        </div>
+        <div class="flex items-center gap-3 text-xs text-gray-400">
+          {% if session.plan %}
+          <span class="flex items-center gap-1">
+            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75"/>
+            </svg>
+            {{ session.plan.name }}
+          </span>
+          {% endif %}
+          <span>{{ session.session_exercises.count }} ejercicio{{ session.session_exercises.count|pluralize:"s" }}</span>
+          {% if session.start_time and session.end_time %}
+          <span>{{ session.get_duration_minutes }}min</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <svg class="w-4 h-4 text-gray-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
+      </svg>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if is_paginated %}
+<div class="flex justify-center items-center gap-2 mt-6">
+  {% if page_obj.has_previous %}
+  <a href="?page={{ page_obj.previous_page_number }}"
+     class="px-4 py-2 rounded-xl bg-white border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50">
+    Anterior
+  </a>
+  {% endif %}
+  <span class="px-4 py-2 text-sm text-gray-500">
+    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+  </span>
+  {% if page_obj.has_next %}
+  <a href="?page={{ page_obj.next_page_number }}"
+     class="px-4 py-2 rounded-xl bg-white border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50">
+    Siguiente
+  </a>
+  {% endif %}
+</div>
+{% endif %}
+
+{% else %}
+<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-12 text-center">
+  <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
+    <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25"/>
+    </svg>
+  </div>
+  <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">No hay sesiones registradas</h2>
+  <p class="text-gray-500 dark:text-gray-400 text-sm mb-4">Empieza a registrar tus entrenamientos.</p>
+  <a href="{% url 'sessions:create' %}"
+     class="inline-flex items-center gap-2 font-semibold rounded-xl bg-indigo-600 text-white px-5 py-2.5 text-sm hover:bg-indigo-700">
+    Iniciar sesión
+  </a>
+</div>
+{% endif %}
+{% endblock %}
+

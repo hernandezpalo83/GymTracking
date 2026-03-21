@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+
+{% block title %}Actividad por usuario - GymTracking{% endblock %}
+
+{% block page_header %}
+<div class="mb-6 flex items-center gap-3">
+  <a href="{% url 'reports:dashboard' %}" class="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors touch-target flex items-center justify-center">
+    <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+    </svg>
+  </a>
+  <div class="flex-1 min-w-0">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Actividad por usuario</h1>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Todos los ejercicios realizados en el período</p>
+  </div>
+  <a href="?{{ request.GET.urlencode }}&format=csv"
+     class="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors touch-target">
+    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+    </svg>
+    CSV
+  </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Filters -->
+<form method="get" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 mb-5">
+  <div class="flex flex-wrap gap-3 items-end">
+    {% if can_filter_users %}
+    <div class="flex-1 min-w-[160px]">
+      <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Usuario</label>
+      <select name="user_id" class="w-full rounded-xl border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
+        {% for u in accessible_users %}
+        <option value="{{ u.pk }}" {% if u.pk|stringformat:"s" == selected_user_id %}selected{% endif %}>
+          {{ u.get_full_name|default:u.username }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    {% endif %}
+    <div>
+      <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Desde</label>
+      <input type="date" name="date_from" value="{{ date_from }}"
+             class="rounded-xl border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
+    </div>
+    <div>
+      <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Hasta</label>
+      <input type="date" name="date_to" value="{{ date_to }}"
+             class="rounded-xl border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
+    </div>
+    <button type="submit"
+            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors touch-target">
+      Filtrar
+    </button>
+  </div>
+  <!-- Quick ranges -->
+  <div class="flex flex-wrap gap-2 mt-3">
+    {% for label, range_val in range_shortcuts %}
+    <a href="?range={{ range_val }}{% if selected_user_id %}&user_id={{ selected_user_id }}{% endif %}"
+       class="px-3 py-1 rounded-lg text-xs font-medium transition-colors
+              {% if active_range == range_val %}bg-indigo-600 text-white{% else %}bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600{% endif %}">
+      {{ label }}
+    </a>
+    {% endfor %}
+    <a href="?{% if selected_user_id %}user_id={{ selected_user_id }}{% endif %}"
+       class="px-3 py-1 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+      Últimos 30d
+    </a>
+  </div>
+</form>
+
+<!-- Summary cards -->
+<div class="grid grid-cols-3 gap-3 mb-5">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 text-center">
+    <p class="text-2xl font-bold text-indigo-600">{{ total_sessions }}</p>
+    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Sesiones</p>
+  </div>
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 text-center">
+    <p class="text-2xl font-bold text-gray-800 dark:text-white">{{ total_sets }}</p>
+    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Series totales</p>
+  </div>
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 text-center">
+    <p class="text-2xl font-bold text-emerald-600">{{ total_volume|floatformat:0 }}</p>
+    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Vol. kg (fuerza)</p>
+  </div>
+</div>
+
+{% if session_blocks %}
+<div class="space-y-5">
+  {% for block in session_blocks %}
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+    <!-- Session header -->
+    <div class="flex items-center justify-between px-5 py-3 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700">
+      <div class="flex items-center gap-3">
+        <div>
+          <p class="font-semibold text-gray-900 dark:text-white text-sm">{{ block.session.date|date:"l, d M Y" }}</p>
+          <p class="text-xs text-gray-400 mt-0.5">
+            {{ block.exercise_rows|length }} ejercicio{{ block.exercise_rows|length|pluralize }}
+            {% if block.session.plan %}&nbsp;·&nbsp;{{ block.session.plan.name }}{% endif %}
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        {% if block.volume %}
+        <span class="text-xs text-gray-400">Vol. {{ block.volume|floatformat:0 }} kg</span>
+        {% endif %}
+        {% if block.session.completed %}
+        <span class="px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 rounded-full text-xs font-medium">Completada</span>
+        {% endif %}
+        <a href="{% url 'sessions:detail' block.session.pk %}"
+           class="p-1.5 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- Exercises -->
+    <div class="divide-y divide-gray-50 dark:divide-gray-700">
+      {% for row in block.exercise_rows %}
+      <div class="px-5 py-3">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <span class="font-medium text-gray-900 dark:text-white text-sm">{{ row.exercise.name }}</span>
+            {% if row.is_cardio %}
+            <span class="px-1.5 py-0.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300 rounded text-xs font-medium">Cardio</span>
+            {% endif %}
+          </div>
+          <div class="flex items-center gap-2 text-xs text-gray-400">
+            <span>{{ row.sets_count }} serie{{ row.sets_count|pluralize }}</span>
+            {% if row.volume %}<span>·</span><span class="font-medium text-gray-600 dark:text-gray-300">{{ row.volume|floatformat:0 }} kg vol.</span>{% endif %}
+          </div>
+        </div>
+
+        {% if row.sets %}
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs">
+            <thead>
+              <tr class="text-gray-400 uppercase tracking-wider">
+                <th class="text-left pb-1 pr-3 font-medium">#</th>
+                {% if row.is_cardio %}
+                <th class="text-center pb-1 px-2 font-medium">Tiempo</th>
+                <th class="text-center pb-1 px-2 font-medium">Distancia</th>
+                <th class="text-center pb-1 font-medium">Ritmo</th>
+                {% else %}
+                <th class="text-center pb-1 px-2 font-medium">Reps</th>
+                <th class="text-center pb-1 px-2 font-medium">Peso</th>
+                <th class="text-center pb-1 font-medium">Volumen</th>
+                {% endif %}
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50 dark:divide-gray-700/50">
+              {% for s in row.sets %}
+              <tr>
+                <td class="py-1 pr-3 font-medium text-gray-500">{{ s.set_number }}</td>
+                {% if row.is_cardio %}
+                <td class="py-1 px-2 text-center text-gray-900 dark:text-white font-semibold">{{ s.duration_display|default:"—" }}</td>
+                <td class="py-1 px-2 text-center text-gray-900 dark:text-white font-semibold">
+                  {% if s.distance_meters %}{{ s.distance_meters|floatformat:0 }} m{% else %}—{% endif %}
+                </td>
+                <td class="py-1 text-center text-gray-400">{{ s.pace_display|default:"—" }}</td>
+                {% else %}
+                <td class="py-1 px-2 text-center text-gray-900 dark:text-white font-semibold">{{ s.reps|default:"—" }}</td>
+                <td class="py-1 px-2 text-center text-gray-900 dark:text-white font-semibold">
+                  {% if s.weight %}{{ s.weight }} kg{% else %}—{% endif %}
+                </td>
+                <td class="py-1 text-center text-gray-400">
+                  {% if s.volume %}{{ s.volume|floatformat:1 }} kg{% else %}—{% endif %}
+                </td>
+                {% endif %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-12 text-center">
+  <svg class="w-12 h-12 text-gray-200 dark:text-gray-600 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664"/>
+  </svg>
+  <p class="text-gray-400 dark:text-gray-500 text-sm">No hay actividad en el período seleccionado.</p>
+</div>
+{% endif %}
+{% endblock %}

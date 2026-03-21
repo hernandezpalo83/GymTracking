@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Iniciar Sesión{% endblock %}
+{% block meta_description %}Accede a tu cuenta de GymTracking{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-indigo-600 to-indigo-800 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-md">
+    <div class="text-center mb-8">
+      <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl">
+        <svg class="w-9 h-9 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/>
+        </svg>
+      </div>
+      <h1 class="text-3xl font-bold text-white">GymTracking</h1>
+      <p class="text-indigo-200 dark:text-gray-400 mt-1">Tu entrenamiento, controlado</p>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8">
+      <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Iniciar Sesión</h2>
+
+      {% if messages %}
+      <div class="mb-4 space-y-2" role="alert">
+        {% for message in messages %}
+        <div class="px-4 py-3 rounded-xl text-sm
+          {% if message.tags == 'error' %}bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300{% else %}bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300{% endif %}">
+          {{ message }}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <form method="post" class="space-y-4" novalidate>
+        {% csrf_token %}
+
+        <div>
+          <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Usuario
+          </label>
+          <input type="text" name="{{ form.username.html_name }}" id="{{ form.username.id_for_label }}"
+                 autocomplete="username"
+                 class="block w-full rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 px-4 py-3 placeholder-gray-400 transition-colors"
+                 placeholder="Tu nombre de usuario"
+                 {% if form.username.value %}value="{{ form.username.value }}"{% endif %}>
+        </div>
+
+        <div>
+          <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Contraseña
+          </label>
+          <input type="password" name="{{ form.password.html_name }}" id="{{ form.password.id_for_label }}"
+                 autocomplete="current-password"
+                 class="block w-full rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 px-4 py-3 placeholder-gray-400 transition-colors"
+                 placeholder="Tu contraseña">
+        </div>
+
+        {% if form.non_field_errors %}
+        <div class="bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-4 py-3 rounded-xl text-sm">
+          {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+        </div>
+        {% endif %}
+
+        <button type="submit"
+                class="w-full inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-200 bg-indigo-600 text-white px-4 py-3 text-base hover:bg-indigo-700 active:scale-[0.98] shadow-sm mt-2 touch-target">
+          Iniciar Sesión
+        </button>
+      </form>
+
+      <div class="mt-6 text-center">
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+          ¿No tienes cuenta?
+          <a href="{% url 'users:register' %}" class="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700">
+            Regístrate aquí
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

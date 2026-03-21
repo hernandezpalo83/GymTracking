@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Mis Atletas - GymTracking{% endblock %}
+
+{% block page_header %}
+<div class="mb-6 flex items-center justify-between">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">Mis Atletas</h1>
+    <p class="text-gray-500 text-sm mt-1">{{ total_athletes }} atleta{{ total_athletes|pluralize:"s" }} asignado{{ total_athletes|pluralize:"s" }}</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+{% if athletes_data %}
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+  {% for item in athletes_data %}
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="w-12 h-12 rounded-xl bg-primary-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
+        {% if item.athlete.avatar %}
+          <img src="{{ item.athlete.avatar.url }}" alt="{{ item.athlete.username }}" class="w-12 h-12 object-cover">
+        {% else %}
+          <span class="text-lg font-bold text-primary-600">{{ item.athlete.get_full_name|default:item.athlete.username|slice:":1"|upper }}</span>
+        {% endif %}
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="font-semibold text-gray-900 truncate">{{ item.athlete.get_full_name|default:item.athlete.username }}</p>
+        <p class="text-sm text-gray-500 truncate">@{{ item.athlete.username }}</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3 mb-4">
+      <div class="bg-primary-50 rounded-xl p-3 text-center">
+        <p class="text-xl font-bold text-primary-600">{{ item.sessions_this_week }}</p>
+        <p class="text-xs text-gray-500 mt-0.5">Sesiones esta semana</p>
+      </div>
+      <div class="bg-gray-50 rounded-xl p-3 text-center">
+        <p class="text-xl font-bold text-gray-700">{{ item.total_sessions }}</p>
+        <p class="text-xs text-gray-500 mt-0.5">Sesiones totales</p>
+      </div>
+    </div>
+
+    {% if item.active_plan %}
+    <div class="flex items-center gap-2 text-sm text-success-700 bg-success-50 rounded-xl px-3 py-2 mb-3">
+      <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      <span class="truncate font-medium">{{ item.active_plan.name }}</span>
+    </div>
+    {% else %}
+    <div class="flex items-center gap-2 text-sm text-gray-400 bg-gray-50 rounded-xl px-3 py-2 mb-3">
+      <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
+      </svg>
+      <span>Sin plan activo</span>
+    </div>
+    {% endif %}
+
+    <a href="{% url 'plans:create' %}?athlete={{ item.athlete.pk }}"
+       class="w-full inline-flex items-center justify-center font-medium rounded-xl transition-all duration-200 bg-primary-600 text-white px-4 py-2.5 text-sm hover:bg-primary-700">
+      Crear plan
+    </a>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
+  <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+    <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/>
+    </svg>
+  </div>
+  <h3 class="text-lg font-semibold text-gray-900 mb-2">No tienes atletas asignados</h3>
+  <p class="text-gray-500 text-sm">Los atletas que se registren y te seleccionen como supervisor aparecerán aquí.</p>
+</div>
+{% endif %}
+{% endblock %}

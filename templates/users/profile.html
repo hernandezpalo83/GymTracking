@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}Mi Perfil{% endblock %}
+{% block meta_description %}Gestiona tu perfil en GymTracking{% endblock %}
+
+{% block page_header %}
+<div class="mb-6">
+  <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Mi Perfil</h1>
+  <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Gestiona tu información personal</p>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 mb-6">
+    <div class="flex items-center gap-5">
+      <div class="w-20 h-20 rounded-2xl bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center flex-shrink-0 overflow-hidden">
+        {% if user.avatar %}
+          <img src="{{ user.avatar.url }}" alt="{{ user.username }}" class="w-20 h-20 object-cover">
+        {% else %}
+          <span class="text-3xl font-bold text-indigo-600 dark:text-indigo-400">{{ user.get_full_name|default:user.username|slice:":1"|upper }}</span>
+        {% endif %}
+      </div>
+      <div>
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ user.get_full_name|default:user.username }}</h2>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+          {% if user.is_superuser %}bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300
+          {% elif user.is_supervisor %}bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300
+          {% else %}bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300{% endif %}">
+          {{ user.get_role_label }}
+        </span>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">@{{ user.username }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-5">Editar información</h2>
+
+    <form method="post" enctype="multipart/form-data" class="space-y-4">
+      {% csrf_token %}
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre</label>
+          {{ form.first_name }}
+          {% if form.first_name.errors %}
+            <p class="text-xs text-red-600 dark:text-red-400 mt-1">{{ form.first_name.errors.0 }}</p>
+          {% endif %}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Apellido</label>
+          {{ form.last_name }}
+          {% if form.last_name.errors %}
+            <p class="text-xs text-red-600 dark:text-red-400 mt-1">{{ form.last_name.errors.0 }}</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+        {{ form.email }}
+        {% if form.email.errors %}
+          <p class="text-xs text-red-600 dark:text-red-400 mt-1">{{ form.email.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Biografía</label>
+        {{ form.bio }}
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Foto de perfil</label>
+        {{ form.avatar }}
+      </div>
+
+      <div class="pt-2 flex gap-3 border-t border-gray-100 dark:border-gray-700">
+        <button type="submit"
+                class="inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-200 bg-indigo-600 text-white px-6 py-3 text-sm hover:bg-indigo-700 active:scale-[0.98] touch-target">
+          Guardar cambios
+        </button>
+        <a href="{% url 'reports:dashboard' %}"
+           class="inline-flex items-center justify-center font-medium rounded-xl transition-all duration-200 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-6 py-3 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 touch-target">
+          Cancelar
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 mt-6">
+    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Estadísticas</h2>
+    <div class="grid grid-cols-3 gap-4 text-center">
+      <div class="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl">
+        <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{{ user.sessions.count }}</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Sesiones</p>
+      </div>
+      <div class="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-xl">
+        <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">{{ user.training_plans.count }}</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Planes</p>
+      </div>
+      <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-xl">
+        <p class="text-2xl font-bold text-gray-700 dark:text-gray-300">{{ user.date_joined|date:"Y" }}</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Desde</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

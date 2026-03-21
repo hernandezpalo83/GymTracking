@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block meta_description %}{{ title }} — GymTracking{% endblock %}
+
+{% block page_header %}
+<div class="mb-6 flex items-center gap-3">
+  <a href="{% url 'plans:list' %}" class="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+    <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+    </svg>
+  </a>
+  <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ title }}</h1>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+    <form method="post" class="space-y-5">
+      {% csrf_token %}
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre del plan <span class="text-red-500">*</span></label>
+        {{ form.name }}
+        {% if form.name.errors %}<p class="text-xs text-red-600 dark:text-red-400 mt-1">{{ form.name.errors.0 }}</p>{% endif %}
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Descripción</label>
+        {{ form.description }}
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tipo de plan</label>
+          {{ form.plan_type }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Visibilidad</label>
+          {{ form.visibility }}
+          <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Quién puede ver este plan</p>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Asignar a</label>
+        {{ form.assigned_to }}
+        {% if form.assigned_to.errors %}<p class="text-xs text-red-600 dark:text-red-400 mt-1">{{ form.assigned_to.errors.0 }}</p>{% endif %}
+        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Opcional — deja en blanco para asignarte a ti mismo</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fecha de inicio</label>
+          {{ form.start_date }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fecha de fin</label>
+          {{ form.end_date }}
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 py-1">
+        {{ form.is_active }}
+        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Plan activo</label>
+      </div>
+
+      <div class="pt-2 flex gap-3 border-t border-gray-100 dark:border-gray-700">
+        <button type="submit"
+                class="flex-1 inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-200 bg-indigo-600 text-white px-6 py-3 text-sm hover:bg-indigo-700 active:scale-[0.98]">
+          {{ submit_text }}
+        </button>
+        <a href="{% url 'plans:list' %}"
+           class="inline-flex items-center justify-center font-medium rounded-xl transition-all bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-6 py-3 text-sm hover:bg-gray-200 dark:hover:bg-gray-600">
+          Cancelar
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if weekly_start %}
+<script>
+  const datePresets = {
+    weekly:  { start: '{{ weekly_start }}',  end: '{{ weekly_end }}' },
+    monthly: { start: '{{ monthly_start }}', end: '{{ monthly_end }}' },
+  };
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const typeSelect = document.querySelector('select[name="plan_type"]');
+    const startInput = document.querySelector('input[name="start_date"]');
+    const endInput = document.querySelector('input[name="end_date"]');
+
+    [startInput, endInput].forEach(inp => {
+      if (inp) inp.addEventListener('change', () => { inp.dataset.userEdited = '1'; });
+    });
+
+    function updateDates(planType) {
+      const preset = datePresets[planType];
+      if (!preset) return;
+      if (startInput && !startInput.dataset.userEdited) startInput.value = preset.start;
+      if (endInput && !endInput.dataset.userEdited) endInput.value = preset.end;
+    }
+
+    if (typeSelect) {
+      typeSelect.addEventListener('change', e => updateDates(e.target.value));
+      if (startInput && !startInput.value) updateDates(typeSelect.value);
+    }
+  });
+</script>
+{% endif %}
+{% endblock %}

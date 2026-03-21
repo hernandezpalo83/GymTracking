@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestión de Usuarios{% endblock %}
+{% block meta_description %}Panel de administración de usuarios de GymTracking{% endblock %}
+
+{% block page_header %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Gestión de Usuarios</h1>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Panel exclusivo para superusuarios</p>
+  </div>
+  <a href="{% url 'users:admin_user_create' %}"
+     class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2.5 rounded-xl transition-colors">
+    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+    </svg>
+    Nuevo Usuario
+  </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Stats summary -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700">
+    <p class="text-xs text-gray-500 dark:text-gray-400">Total usuarios</p>
+    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ total }}</p>
+  </div>
+  <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700">
+    <p class="text-xs text-gray-500 dark:text-gray-400">Activos</p>
+    <p class="text-2xl font-bold text-green-600">{{ active }}</p>
+  </div>
+  <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700">
+    <p class="text-xs text-gray-500 dark:text-gray-400">Supervisores</p>
+    <p class="text-2xl font-bold text-indigo-600">{{ supervisors }}</p>
+  </div>
+  <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700">
+    <p class="text-xs text-gray-500 dark:text-gray-400">Atletas</p>
+    <p class="text-2xl font-bold text-purple-600">{{ athletes }}</p>
+  </div>
+</div>
+
+<!-- Users table -->
+<div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+          <th class="text-left px-4 py-3 text-gray-500 dark:text-gray-400 font-medium">Usuario</th>
+          <th class="text-left px-4 py-3 text-gray-500 dark:text-gray-400 font-medium hidden sm:table-cell">Email</th>
+          <th class="text-left px-4 py-3 text-gray-500 dark:text-gray-400 font-medium">Rol</th>
+          <th class="text-left px-4 py-3 text-gray-500 dark:text-gray-400 font-medium hidden md:table-cell">Supervisor</th>
+          <th class="text-left px-4 py-3 text-gray-500 dark:text-gray-400 font-medium">Estado</th>
+          <th class="text-right px-4 py-3 text-gray-500 dark:text-gray-400 font-medium">Acciones</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-50 dark:divide-gray-700">
+        {% for u in users %}
+        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+          <td class="px-4 py-3">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center flex-shrink-0">
+                <span class="text-xs font-bold text-indigo-700 dark:text-indigo-300">{{ u.username|slice:":1"|upper }}</span>
+              </div>
+              <div>
+                <p class="font-medium text-gray-900 dark:text-white">{{ u.get_full_name|default:u.username }}</p>
+                <p class="text-xs text-gray-400">@{{ u.username }}</p>
+              </div>
+            </div>
+          </td>
+          <td class="px-4 py-3 text-gray-600 dark:text-gray-300 hidden sm:table-cell">{{ u.email|default:"—" }}</td>
+          <td class="px-4 py-3">
+            {% if u.is_superuser %}
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300">Superusuario</span>
+            {% elif u.is_supervisor %}
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">Supervisor</span>
+            {% else %}
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">Atleta</span>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3 text-gray-500 dark:text-gray-400 hidden md:table-cell">
+            {{ u.supervised_by.username|default:"—" }}
+          </td>
+          <td class="px-4 py-3">
+            {% if u.is_active %}
+              <span class="inline-flex items-center gap-1 text-xs text-green-600 font-medium">
+                <span class="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span>Activo
+              </span>
+            {% else %}
+              <span class="inline-flex items-center gap-1 text-xs text-gray-400 font-medium">
+                <span class="w-1.5 h-1.5 rounded-full bg-gray-300 inline-block"></span>Inactivo
+              </span>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3">
+            <div class="flex items-center justify-end gap-1">
+              <a href="{% url 'users:admin_user_detail' u.pk %}"
+                 class="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900 rounded-lg transition-colors" title="Ver detalle">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+              </a>
+              <a href="{% url 'users:admin_user_edit' u.pk %}"
+                 class="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900 rounded-lg transition-colors" title="Editar">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/>
+                </svg>
+              </a>
+              {% if u != request.user %}
+              <form method="post" action="{% url 'users:admin_user_toggle_active' u.pk %}" class="inline">
+                {% csrf_token %}
+                <button type="submit"
+                        class="p-1.5 rounded-lg transition-colors {% if u.is_active %}text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900{% else %}text-gray-400 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-900{% endif %}"
+                        title="{% if u.is_active %}Desactivar{% else %}Activar{% endif %}">
+                  {% if u.is_active %}
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                  </svg>
+                  {% else %}
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  {% endif %}
+                </button>
+              </form>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="px-4 py-12 text-center text-gray-400">No hay usuarios registrados.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+

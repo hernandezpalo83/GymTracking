@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+
+{% block title %}Grupos Musculares - GymTracking{% endblock %}
+
+{% block page_header %}
+<div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Grupos Musculares</h1>
+    <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Volumen y frecuencia por grupo muscular</p>
+  </div>
+  <a href="?{{ request.GET.urlencode }}&format=csv"
+     class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-sm font-medium hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors border border-green-200 dark:border-green-800">
+    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+    </svg>
+    Exportar CSV
+  </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Filter form -->
+<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 mb-5">
+  <form method="get" class="space-y-4">
+    <!-- Quick range buttons -->
+    <div class="flex flex-wrap gap-2">
+      <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 self-center mr-1">Rango rápido:</span>
+      <a href="?range=week{% if selected_user_id %}&user_id={{ selected_user_id }}{% endif %}"
+         class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors {% if active_range == 'week' %}bg-indigo-600 text-white{% else %}bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600{% endif %}">
+        Esta semana
+      </a>
+      <a href="?range=month{% if selected_user_id %}&user_id={{ selected_user_id }}{% endif %}"
+         class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors {% if active_range == 'month' %}bg-indigo-600 text-white{% else %}bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600{% endif %}">
+        Este mes
+      </a>
+      <a href="?range=30d{% if selected_user_id %}&user_id={{ selected_user_id }}{% endif %}"
+         class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors {% if active_range == '30d' %}bg-indigo-600 text-white{% else %}bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600{% endif %}">
+        Últimos 30 días
+      </a>
+      <a href="?range=90d{% if selected_user_id %}&user_id={{ selected_user_id }}{% endif %}"
+         class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors {% if active_range == '90d' %}bg-indigo-600 text-white{% else %}bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600{% endif %}">
+        Últimos 3 meses
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div>
+        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Desde</label>
+        <input type="date" name="date_from" value="{{ date_from }}"
+               class="w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Hasta</label>
+        <input type="date" name="date_to" value="{{ date_to }}"
+               class="w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+      </div>
+      {% if can_filter_users %}
+      <div>
+        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Atleta</label>
+        <select name="user_id"
+                class="w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+          <option value="">Yo mismo</option>
+          {% for u in accessible_users %}
+          <option value="{{ u.pk }}" {% if selected_user_id == u.pk|stringformat:'s' %}selected{% endif %}>{{ u.get_full_name|default:u.username }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+    </div>
+    <button type="submit"
+            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors">
+      Aplicar filtros
+    </button>
+  </form>
+</div>
+
+{% if mg_rows %}
+<!-- Chart -->
+<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 mb-5">
+  <h3 class="font-semibold text-gray-900 dark:text-white mb-4">Volumen por grupo muscular (kg)</h3>
+  <canvas id="muscleChart"></canvas>
+</div>
+
+<!-- Table -->
+<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+  <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+    <h3 class="font-semibold text-gray-900 dark:text-white">Detalle por grupo muscular</h3>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full">
+      <thead>
+        <tr class="bg-gray-50 dark:bg-gray-700/50 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+          <th class="px-5 py-3 text-left">Grupo muscular</th>
+          <th class="px-5 py-3 text-right">Sesiones</th>
+          <th class="px-5 py-3 text-right">Volumen total (kg)</th>
+          <th class="px-5 py-3 text-right">Volumen relativo</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-50 dark:divide-gray-700">
+        {% with max_volume=mg_rows.0.volume %}
+        {% for row in mg_rows %}
+        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+          <td class="px-5 py-3 text-sm font-medium text-gray-900 dark:text-white">{{ row.name }}</td>
+          <td class="px-5 py-3 text-sm text-gray-600 dark:text-gray-400 text-right">{{ row.session_count }}</td>
+          <td class="px-5 py-3 text-sm font-semibold text-gray-900 dark:text-white text-right">{{ row.volume }}</td>
+          <td class="px-5 py-3 text-right">
+            {% if max_volume > 0 %}
+            <div class="flex items-center justify-end gap-2">
+              <div class="w-24 bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+                <div class="bg-indigo-500 h-2 rounded-full" style="width: {% widthratio row.volume max_volume 100 %}%"></div>
+              </div>
+              <span class="text-xs text-gray-500 dark:text-gray-400 w-8 text-right">{% widthratio row.volume max_volume 100 %}%</span>
+            </div>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+        {% endwith %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-12 text-center">
+  <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
+    <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
+    </svg>
+  </div>
+  <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Sin datos en el período</h3>
+  <p class="text-gray-500 dark:text-gray-400 text-sm">No se encontraron sesiones con ejercicios en el rango seleccionado.</p>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if mg_rows %}
+<script>
+(function() {
+  const labels = {{ chart_labels|safe }};
+  const volumes = {{ chart_volumes|safe }};
+  const counts = {{ chart_counts|safe }};
+  const isDark = document.documentElement.classList.contains('dark');
+  const gridColor = isDark ? 'rgba(255,255,255,0.07)' : '#f3f4f6';
+  const textColor = isDark ? '#9ca3af' : '#6b7280';
+
+  // Generate a palette of blues/purples
+  const colors = labels.map((_, i) => `hsl(${210 + i * 15}, 70%, ${55 - i * 2}%)`);
+
+  new Chart(document.getElementById('muscleChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Volumen (kg)',
+        data: volumes,
+        backgroundColor: colors,
+        borderRadius: 6,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            afterLabel: function(ctx) {
+              return 'Sesiones: ' + counts[ctx.dataIndex];
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          grid: { color: gridColor },
+          ticks: { color: textColor, callback: v => v + ' kg' },
+        },
+        y: {
+          grid: { display: false },
+          ticks: { color: textColor },
+        }
+      }
+    }
+  });
+})();
+</script>
+{% endif %}
+{% endblock %}

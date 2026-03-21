@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}Resumen semanal - GymTracking{% endblock %}
+
+{% block page_header %}
+<div class="mb-6 flex items-center justify-between">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">Semana actual</h1>
+    <p class="text-gray-500 text-sm mt-1">{{ week_start|date:"d M" }} — {{ week_start|date:"d M Y"|slice:"3:" }}</p>
+  </div>
+  <div class="text-right">
+    <p class="text-2xl font-bold text-primary-600">{{ total_sessions }}/{{ planned_days }}</p>
+    <p class="text-xs text-gray-400">sesiones completadas</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-3">
+  {% for day in days_data %}
+  <div class="bg-white rounded-2xl shadow-sm border {% if day.is_today %}border-primary-300 ring-1 ring-primary-200{% else %}border-gray-100{% endif %} overflow-hidden">
+    <div class="flex items-center gap-3 px-4 py-3
+      {% if day.completed %}bg-success-50{% elif day.planned and not day.is_future %}bg-red-50{% elif day.planned %}bg-primary-50{% else %}bg-gray-50{% endif %}">
+
+      <!-- Day status icon -->
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0
+        {% if day.completed %}bg-success-600 text-white
+        {% elif day.planned and not day.is_future %}bg-red-100 text-red-500
+        {% elif day.planned %}bg-primary-100 text-primary-600
+        {% else %}bg-gray-100 text-gray-400{% endif %}">
+        {% if day.completed %}
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+          </svg>
+        {% elif day.planned and not day.is_future %}
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        {% elif day.is_today %}
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        {% else %}
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25"/>
+          </svg>
+        {% endif %}
+      </div>
+
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2">
+          <p class="font-semibold text-gray-900 text-sm">{{ day.day_name }}</p>
+          {% if day.is_today %}
+          <span class="px-1.5 py-0.5 bg-primary-600 text-white rounded text-xs font-medium">Hoy</span>
+          {% endif %}
+          {% if day.planned %}
+          <span class="px-1.5 py-0.5 bg-primary-100 text-primary-700 rounded text-xs">Planificado</span>
+          {% endif %}
+        </div>
+        <p class="text-xs text-gray-400 mt-0.5">{{ day.date|date:"d M Y" }}</p>
+      </div>
+
+      <div class="text-right flex-shrink-0">
+        {% if day.sessions %}
+          <p class="text-sm font-semibold text-gray-700">{{ day.sessions|length }} sesión{{ day.sessions|length|pluralize:"es" }}</p>
+        {% elif day.planned and not day.is_future %}
+          <p class="text-sm text-red-500 font-medium">No completado</p>
+        {% elif day.is_future %}
+          <p class="text-xs text-gray-400">Próximamente</p>
+        {% else %}
+          <p class="text-xs text-gray-400">Sin sesión</p>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if day.sessions %}
+    <div class="divide-y divide-gray-50">
+      {% for session in day.sessions %}
+      <a href="{% url 'sessions:detail' session.pk %}"
+         class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
+        <div class="flex-1 min-w-0">
+          <p class="text-sm text-gray-700">
+            {{ session.session_exercises.count }} ejercicio{{ session.session_exercises.count|pluralize:"s" }}
+            {% if session.start_time %}&middot; {{ session.start_time|time:"H:i" }}{% endif %}
+          </p>
+          {% if session.notes %}
+          <p class="text-xs text-gray-400 truncate mt-0.5">{{ session.notes }}</p>
+          {% endif %}
+        </div>
+        <svg class="w-4 h-4 text-gray-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
+        </svg>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if day.is_today and not day.sessions %}
+    <div class="px-4 py-3 border-t border-gray-50">
+      <a href="{% url 'sessions:create' %}"
+         class="w-full inline-flex items-center justify-center gap-2 font-semibold rounded-xl bg-primary-600 text-white px-4 py-2.5 text-sm hover:bg-primary-700 transition-colors">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+        </svg>
+        Iniciar sesión de hoy
+      </a>
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,261 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es" class="h-full{% if user.is_authenticated and user.dark_mode %} dark{% endif %}" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="description" content="{% block meta_description %}GymTracking — Tu aplicación de seguimiento de entrenamiento personal{% endblock %}">
+    <meta name="robots" content="noindex, nofollow">
+    <title>{% block title %}GymTracking{% endblock %} | GymTracking</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+    // Dark mode: apply immediately from localStorage to avoid flash
+    (function() {
+      var dm = localStorage.getItem('darkMode');
+      if (dm === 'true') {
+        document.documentElement.classList.add('dark');
+      } else if (dm === 'false') {
+        document.documentElement.classList.remove('dark');
+      }
+    })();
+
+    window.tailwindConfig = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          colors: {
+            primary: {
+              50:'#eef2ff', 100:'#e0e7ff', 200:'#c7d2fe', 300:'#a5b4fc',
+              400:'#818cf8', 500:'#6366f1', 600:'#4f46e5', 700:'#4338ca',
+              800:'#3730a3', 900:'#312e81', 950:'#1e1b4b'
+            },
+            success: { 50:'#f0fdf4',100:'#dcfce7',500:'#22c55e',600:'#16a34a',700:'#15803d' },
+            error: { 50:'#fef2f2', 600:'#dc2626', 700:'#b91c1c' },
+            warning: { 50:'#fffbeb', 600:'#d97706', 700:'#b45309' }
+          }
+        }
+      }
+    }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+      body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+      .bottom-nav-safe { padding-bottom: env(safe-area-inset-bottom); }
+      @media (max-width: 1023px) { .app-body { padding-bottom: 72px; } }
+      /* Scrollbar hide */
+      .scrollbar-hide::-webkit-scrollbar { display: none; }
+      .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+      /* Touch targets */
+      .touch-target { min-height: 48px; min-width: 48px; }
+      /* Sidebar always dark */
+      .sidebar-nav { background: #0f172a; }
+      /* Smooth transitions for theme switch */
+      *, *::before, *::after { transition-property: color, background-color, border-color; transition-duration: 150ms; }
+      a, button { transition-duration: 100ms; }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="h-full bg-slate-100 dark:bg-slate-950 font-sans{% if user.is_authenticated %} app-body{% endif %}">
+
+{% if user.is_authenticated %}
+<!-- ===== SIDEBAR (desktop) — always dark ===== -->
+<div class="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col z-20">
+  <div class="flex flex-col flex-grow sidebar-nav overflow-y-auto shadow-2xl">
+
+    <!-- Logo area -->
+    <div class="flex items-center flex-shrink-0 px-6 py-5 border-b border-white/10">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-900/50">
+          <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/>
+          </svg>
+        </div>
+        <span class="text-xl font-bold text-white tracking-tight">GymTracking</span>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="flex-1 px-3 py-4 space-y-0.5" aria-label="Navegación principal">
+      <a href="{% url 'reports:dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {% if request.resolver_match.url_name == 'dashboard' %}bg-indigo-600 text-white shadow-md shadow-indigo-900/50{% else %}text-slate-400 hover:bg-white/10 hover:text-white{% endif %}">
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
+        Inicio
+      </a>
+      <a href="{% url 'exercises:list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {% if request.resolver_match.namespace == 'exercises' %}bg-indigo-600 text-white shadow-md shadow-indigo-900/50{% else %}text-slate-400 hover:bg-white/10 hover:text-white{% endif %}">
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5"/></svg>
+        Ejercicios
+      </a>
+      <a href="{% url 'plans:list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {% if request.resolver_match.namespace == 'plans' %}bg-indigo-600 text-white shadow-md shadow-indigo-900/50{% else %}text-slate-400 hover:bg-white/10 hover:text-white{% endif %}">
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"/></svg>
+        Planes
+      </a>
+      <a href="{% url 'sessions:list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {% if request.resolver_match.namespace == 'sessions' %}bg-indigo-600 text-white shadow-md shadow-indigo-900/50{% else %}text-slate-400 hover:bg-white/10 hover:text-white{% endif %}">
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5"/></svg>
+        Sesiones
+      </a>
+      <a href="{% url 'reports:exercise_progress' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {% if request.resolver_match.namespace == 'reports' and request.resolver_match.url_name != 'dashboard' %}bg-indigo-600 text-white shadow-md shadow-indigo-900/50{% else %}text-slate-400 hover:bg-white/10 hover:text-white{% endif %}">
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
+        Informes
+      </a>
+      {% if user.is_supervisor or user.is_superuser %}
+      <a href="{% url 'users:athletes' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {% if request.resolver_match.url_name == 'athletes' %}bg-indigo-600 text-white shadow-md shadow-indigo-900/50{% else %}text-slate-400 hover:bg-white/10 hover:text-white{% endif %}">
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
+        Mis Atletas
+      </a>
+      {% endif %}
+      {% if user.is_superuser %}
+      <div class="pt-3 mt-2 border-t border-white/10">
+        <p class="px-3 mb-1 text-[10px] font-semibold uppercase tracking-widest text-slate-600">Admin</p>
+        <a href="{% url 'users:admin_user_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {% if 'admin' in request.resolver_match.url_name %}bg-rose-600/20 text-rose-300{% else %}text-slate-400 hover:bg-white/10 hover:text-white{% endif %}">
+          <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 011.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.56.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.893.149c-.425.07-.765.383-.93.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 01-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.397.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 01-.12-1.45l.527-.737c.25-.35.273-.806.108-1.204-.165-.397-.505-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 01.12-1.45l.773-.773a1.125 1.125 0 011.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          Usuarios
+        </a>
+      </div>
+      {% endif %}
+    </nav>
+
+    <!-- User + dark mode at bottom -->
+    <div class="border-t border-white/10 p-4 space-y-2">
+      <button id="darkModeToggle" onclick="toggleDarkMode()"
+        class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-slate-400 hover:bg-white/10 hover:text-white transition-all">
+        <svg id="icon-dark" class="w-5 h-5 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/>
+        </svg>
+        <svg id="icon-light" class="w-5 h-5 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/>
+        </svg>
+        <span class="dark:hidden">Modo oscuro</span>
+        <span class="hidden dark:block">Modo claro</span>
+      </button>
+      <div class="flex items-center gap-3 px-1">
+        <div class="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center flex-shrink-0">
+          {% if user.avatar %}<img src="{{ user.avatar.url }}" class="w-9 h-9 rounded-full object-cover" alt="Avatar">
+          {% else %}<span class="text-sm font-semibold text-white">{{ user.get_full_name|default:user.username|slice:":1"|upper }}</span>
+          {% endif %}
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold text-white truncate">{{ user.get_full_name|default:user.username }}</p>
+          <p class="text-xs text-slate-500 truncate">{{ user.get_role_label }}</p>
+        </div>
+        <a href="{% url 'users:logout' %}" class="text-slate-500 hover:text-slate-300 p-1.5 rounded-lg hover:bg-white/10 transition-all" title="Cerrar sesión">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile top bar — dark -->
+<header class="lg:hidden sidebar-nav border-b border-white/10 px-4 py-3 flex items-center justify-between sticky top-0 z-30 shadow-md">
+  <div class="flex items-center gap-2">
+    <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+      <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
+    </div>
+    <span class="font-bold text-white tracking-tight">GymTracking</span>
+  </div>
+  <div class="flex items-center gap-2">
+    <button onclick="toggleDarkMode()" class="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl transition-all" title="Cambiar tema">
+      <svg class="w-5 h-5 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/></svg>
+      <svg class="w-5 h-5 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/></svg>
+    </button>
+    <a href="{% url 'sessions:create' %}" class="bg-indigo-600 text-white px-3 py-2 rounded-xl text-sm font-semibold touch-target flex items-center hover:bg-indigo-700 transition-colors">+ Sesión</a>
+    <a href="{% url 'users:profile' %}" class="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center hover:bg-indigo-700 transition-colors">
+      <span class="text-sm font-semibold text-white">{{ user.get_full_name|default:user.username|slice:":1"|upper }}</span>
+    </a>
+  </div>
+</header>
+
+{% endif %}{# end if user.is_authenticated #}
+
+<!-- ===== MAIN CONTENT WRAPPER ===== -->
+<div class="{% if user.is_authenticated %}lg:pl-64 flex flex-col min-h-screen{% endif %}">
+  <main class="{% if user.is_authenticated %}flex-1 px-4 py-5 lg:px-8 lg:py-7{% endif %}" id="main-content">
+
+    {% if messages %}
+    <div class="{% if not user.is_authenticated %}fixed top-4 left-4 right-4 z-50 {% endif %}mb-5 space-y-2" role="alert" aria-live="polite">
+      {% for message in messages %}
+      <div class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium shadow-sm
+        {% if not user.is_authenticated %}shadow-lg {% endif %}
+        {% if message.tags == 'success' %}bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800
+        {% elif message.tags == 'error' %}bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-300 border border-red-200 dark:border-red-800
+        {% elif message.tags == 'warning' %}bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800
+        {% else %}bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800{% endif %}">
+        <span>{{ message }}</span>
+        <button onclick="this.parentElement.remove()" class="ml-auto opacity-60 hover:opacity-100 flex-shrink-0" aria-label="Cerrar">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% block page_header %}{% endblock %}
+    {% block content %}{% endblock %}
+
+  </main>
+</div>
+
+{% if user.is_authenticated %}
+<!-- ===== MOBILE BOTTOM NAV — always dark ===== -->
+<nav class="lg:hidden fixed bottom-0 left-0 right-0 sidebar-nav border-t border-white/10 z-40 bottom-nav-safe shadow-lg" aria-label="Navegación móvil">
+  <div class="grid grid-cols-5 h-16">
+    <a href="{% url 'reports:dashboard' %}" class="flex flex-col items-center justify-center gap-0.5 {% if request.resolver_match.url_name == 'dashboard' %}text-indigo-400{% else %}text-slate-500 hover:text-slate-300{% endif %} transition-colors">
+      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
+      <span class="text-[10px] font-medium">Inicio</span>
+    </a>
+    <a href="{% url 'exercises:list' %}" class="flex flex-col items-center justify-center gap-0.5 {% if request.resolver_match.namespace == 'exercises' %}text-indigo-400{% else %}text-slate-500 hover:text-slate-300{% endif %} transition-colors">
+      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5"/></svg>
+      <span class="text-[10px] font-medium">Ejercicios</span>
+    </a>
+    <a href="{% url 'sessions:create' %}" class="flex flex-col items-center justify-center -mt-5" aria-label="Nueva sesión">
+      <div class="w-14 h-14 bg-indigo-600 rounded-full flex items-center justify-center shadow-lg shadow-indigo-900/60 active:scale-95 transition-transform hover:bg-indigo-700">
+        <svg class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+      </div>
+    </a>
+    <a href="{% url 'plans:list' %}" class="flex flex-col items-center justify-center gap-0.5 {% if request.resolver_match.namespace == 'plans' %}text-indigo-400{% else %}text-slate-500 hover:text-slate-300{% endif %} transition-colors">
+      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"/></svg>
+      <span class="text-[10px] font-medium">Planes</span>
+    </a>
+    <a href="{% url 'sessions:list' %}" class="flex flex-col items-center justify-center gap-0.5 {% if request.resolver_match.namespace == 'sessions' %}text-indigo-400{% else %}text-slate-500 hover:text-slate-300{% endif %} transition-colors">
+      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5"/></svg>
+      <span class="text-[10px] font-medium">Sesiones</span>
+    </a>
+  </div>
+</nav>
+{% endif %}
+
+{% block extra_js %}{% endblock %}
+
+<script>
+function toggleDarkMode() {
+  var html = document.getElementById('html-root');
+  var isDark = html.classList.toggle('dark');
+  localStorage.setItem('darkMode', isDark);
+  {% if user.is_authenticated %}
+  fetch('{% url "users:toggle_dark_mode" %}', {
+    method: 'POST',
+    headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json' },
+  }).catch(function() {});
+  {% endif %}
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var alerts = document.querySelectorAll('[role="alert"] > div');
+  alerts.forEach(function(el) {
+    setTimeout(function() {
+      el.style.transition = 'opacity 0.5s';
+      el.style.opacity = '0';
+      setTimeout(function() { el.remove(); }, 500);
+    }, 5000);
+  });
+});
+</script>
+</body>
+</html>

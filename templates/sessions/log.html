@@ -1,0 +1,401 @@
+{% extends 'base.html' %}
+
+{% block title %}Registrando sesión - GymTracking{% endblock %}
+{% block meta_description %}Registro de entrenamiento activo{% endblock %}
+
+{% block page_header %}
+<div class="mb-5 flex items-center gap-3">
+  <a href="{% url 'sessions:detail' session.pk %}"
+     class="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors touch-target flex items-center justify-center">
+    <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+    </svg>
+  </a>
+  <div class="flex-1">
+    <h1 class="text-xl font-bold text-gray-900 dark:text-white">Registrando sesión</h1>
+    <p class="text-gray-500 dark:text-gray-400 text-sm">{{ session.date|date:"l, d M Y" }}</p>
+  </div>
+  {% if not session.completed %}
+  <button onclick="openAddSheet()"
+          class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-sm font-semibold hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-colors active:scale-95 touch-target">
+    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+    </svg>
+    Ejercicio
+  </button>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto space-y-5">
+
+  <!-- Quick-add from plan -->
+  {% if plan_exercises %}
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-4">
+    <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Del plan de hoy</p>
+    <div class="flex flex-wrap gap-2">
+      {% for pe in plan_exercises %}
+      <button onclick="quickAddExercise({{ pe.exercise.pk }}, '{{ pe.exercise.name|escapejs }}')"
+              class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-sm font-medium hover:bg-blue-100 dark:hover:bg-blue-900/60 active:scale-95 transition-all touch-target">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+        </svg>
+        {{ pe.exercise.name }}
+      </button>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Exercise cards -->
+  <div id="exercises-container" class="space-y-5">
+    {% for se in session_exercises %}
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden" id="exercise-{{ se.pk }}" data-exercise-id="{{ se.exercise.pk }}" data-exercise-type="{{ se.exercise.exercise_type }}">
+
+      <!-- Exercise header -->
+      <div class="flex items-center justify-between px-4 py-3.5 bg-gray-50 dark:bg-gray-700/60 border-b border-gray-100 dark:border-gray-600">
+        <div>
+          <h3 class="font-semibold text-gray-900 dark:text-white text-sm">{{ se.exercise.name }}</h3>
+          <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+            {{ se.exercise.get_exercise_type_display }}
+            &middot; <span id="count-{{ se.pk }}">{{ se.sets_completed }}</span> serie{{ se.sets_completed|pluralize:"s" }}
+          </p>
+        </div>
+        <span class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-sm font-bold flex items-center justify-center">
+          {{ se.sets_completed }}
+        </span>
+      </div>
+
+      <!-- Sets table header -->
+      <div class="px-4 py-2 bg-gray-50 dark:bg-gray-700/30 border-b border-gray-100 dark:border-gray-600">
+        {% if se.exercise.exercise_type == 'cardio' %}
+        <div class="grid grid-cols-[2rem_1fr_1fr_2rem] gap-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide">
+          <span>#</span><span class="text-center">Tiempo</span><span class="text-center">Distancia</span><span></span>
+        </div>
+        {% else %}
+        <div class="grid grid-cols-[2rem_1fr_1fr_2rem] gap-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide">
+          <span>#</span><span class="text-center">Reps</span><span class="text-center">Peso</span><span></span>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Logged sets -->
+      <div id="sets-{{ se.pk }}" class="divide-y divide-gray-50 dark:divide-gray-700">
+        {% for s in se.sets.all %}
+        <div class="grid grid-cols-[2rem_1fr_1fr_2rem] gap-2 items-center px-4 py-3" id="set-row-{{ s.pk }}">
+          <span class="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 text-xs font-bold flex items-center justify-center">{{ s.set_number }}</span>
+          {% if s.reps is not None %}
+          <span class="text-sm font-semibold text-gray-900 dark:text-white text-center">{{ s.reps }}</span>
+          <span class="text-sm font-semibold text-gray-700 dark:text-gray-300 text-center">{{ s.weight|default:"—" }} kg</span>
+          {% elif s.duration_seconds is not None %}
+          <span class="text-sm font-semibold text-gray-900 dark:text-white text-center">{{ s.duration_seconds|floatformat:0 }} seg</span>
+          <span class="text-sm font-semibold text-gray-700 dark:text-gray-300 text-center">{{ s.distance_meters|default:"—" }} m</span>
+          {% else %}
+          <span class="text-sm text-gray-400 text-center col-span-2">—</span>
+          {% endif %}
+          <button onclick="deleteSet({{ s.pk }}, this)" type="button"
+                  class="w-6 h-6 flex items-center justify-center text-gray-300 dark:text-gray-600 hover:text-red-500 dark:hover:text-red-400 transition-colors">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Inline input row for next set -->
+      <div class="px-4 py-3 border-t border-dashed border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800" id="input-row-{{ se.pk }}">
+        {% if se.exercise.exercise_type == 'cardio' %}
+        <div class="grid grid-cols-[2rem_1fr_1fr_auto] gap-2 items-end mb-3">
+          <span class="text-xs text-gray-400 dark:text-gray-500 font-semibold pt-5 text-center">+</span>
+          <div>
+            <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1 text-center">Tiempo (min)</label>
+            <input type="number" id="duration-{{ se.pk }}" value="0" min="0"
+                   class="w-full text-center text-lg font-bold dark:bg-gray-700 dark:text-white border border-gray-200 dark:border-gray-600 rounded-xl py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+          <div>
+            <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1 text-center">Distancia (m)</label>
+            <input type="number" id="distance-{{ se.pk }}" value="0" min="0" step="100"
+                   class="w-full text-center text-lg font-bold dark:bg-gray-700 dark:text-white border border-gray-200 dark:border-gray-600 rounded-xl py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+          <div class="pb-0.5"></div>
+        </div>
+        {% else %}
+        <div class="grid grid-cols-[2rem_1fr_1fr_auto] gap-2 items-end mb-3">
+          <span class="text-xs text-gray-400 dark:text-gray-500 font-semibold pt-5 text-center">+</span>
+          <div>
+            <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1 text-center">Reps</label>
+            <div class="flex items-center gap-1">
+              <button onclick="adjustValue('reps-{{ se.pk }}', -1)" type="button"
+                      class="w-9 h-10 rounded-xl bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-200 font-bold text-lg flex items-center justify-center active:scale-95 transition-transform">−</button>
+              <input type="number" id="reps-{{ se.pk }}" value="10" min="0" max="999"
+                     class="flex-1 text-center text-lg font-bold dark:bg-gray-700 dark:text-white border border-gray-200 dark:border-gray-600 rounded-xl py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <button onclick="adjustValue('reps-{{ se.pk }}', 1)" type="button"
+                      class="w-9 h-10 rounded-xl bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-200 font-bold text-lg flex items-center justify-center active:scale-95 transition-transform">+</button>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1 text-center">Peso (kg)</label>
+            <div class="flex items-center gap-1">
+              <button onclick="adjustValue('weight-{{ se.pk }}', -2.5)" type="button"
+                      class="w-9 h-10 rounded-xl bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-200 font-bold text-lg flex items-center justify-center active:scale-95 transition-transform">−</button>
+              <input type="number" id="weight-{{ se.pk }}" value="0" min="0" step="2.5"
+                     class="flex-1 text-center text-lg font-bold dark:bg-gray-700 dark:text-white border border-gray-200 dark:border-gray-600 rounded-xl py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <button onclick="adjustValue('weight-{{ se.pk }}', 2.5)" type="button"
+                      class="w-9 h-10 rounded-xl bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-200 font-bold text-lg flex items-center justify-center active:scale-95 transition-transform">+</button>
+            </div>
+          </div>
+          <div class="pb-0.5"></div>
+        </div>
+        {% endif %}
+        <button onclick="logSet({{ se.pk }})" type="button"
+                class="w-full py-3.5 rounded-xl bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 active:scale-[0.98] transition-all touch-target shadow-sm">
+          + Añadir serie
+        </button>
+      </div>
+
+    </div>
+    {% empty %}
+    <div id="empty-state" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-10 text-center">
+      <div class="w-14 h-14 bg-gray-100 dark:bg-gray-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <svg class="w-7 h-7 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+        </svg>
+      </div>
+      <p class="text-gray-500 dark:text-gray-400 text-base font-medium mb-1">Sin ejercicios aún</p>
+      <p class="text-gray-400 dark:text-gray-500 text-sm mb-5">Añade ejercicios para empezar a registrar tu sesión.</p>
+      <button onclick="openAddSheet()"
+              class="inline-flex items-center gap-2 font-semibold rounded-xl bg-blue-600 text-white px-6 py-3 text-sm hover:bg-blue-700 touch-target">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+        </svg>
+        Añadir ejercicio
+      </button>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Finalizar sesión -->
+  {% if not session.completed %}
+  <div class="pt-2 pb-6">
+    <form method="post" action="{% url 'sessions:complete' session.pk %}">
+      {% csrf_token %}
+      <button type="submit"
+              class="w-full py-4 rounded-2xl bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-bold text-base flex items-center justify-center gap-2 touch-target shadow-sm active:scale-[0.98] transition-all">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+        </svg>
+        Finalizar sesión
+      </button>
+    </form>
+  </div>
+  {% endif %}
+
+</div>
+
+<!-- Hidden CSRF for AJAX -->
+<input type="hidden" id="csrf-token" value="{{ csrf_token }}">
+
+<!-- Bottom sheet: añadir ejercicio -->
+<div id="add-exercise-sheet"
+     class="fixed inset-0 z-50 hidden"
+     onclick="if(event.target===this)closeAddSheet()">
+  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+  <div class="absolute bottom-0 left-0 right-0 bg-white dark:bg-gray-800 rounded-t-3xl p-6 shadow-2xl max-h-[80vh] overflow-y-auto"
+       onclick="event.stopPropagation()">
+    <div class="flex items-center justify-between mb-5">
+      <h3 class="font-bold text-gray-900 dark:text-white text-lg">Añadir ejercicio</h3>
+      <button onclick="closeAddSheet()" type="button"
+              class="p-2 rounded-xl text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors touch-target flex items-center justify-center">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <form method="post" action="{% url 'sessions:add_exercise' session.pk %}" class="space-y-3">
+      {% csrf_token %}
+      <select name="exercise" id="add-exercise-select"
+              class="w-full rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-4 py-3.5 text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        <option value="">— Seleccionar ejercicio —</option>
+        {% for exercise in all_exercises %}
+        <option value="{{ exercise.pk }}">{{ exercise.name }} ({{ exercise.get_exercise_type_display }})</option>
+        {% endfor %}
+      </select>
+      <button type="submit"
+              class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-base hover:bg-blue-700 active:scale-[0.98] transition-all touch-target">
+        Añadir al entrenamiento
+      </button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const exerciseTypes = {{ exercise_types_json|safe }};
+  const lastSetData = {{ last_set_data_json|safe }};
+
+  // Pre-fill inputs for existing exercise cards on load
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('[data-exercise-id]').forEach(card => {
+      prefillCard(card);
+    });
+  });
+
+  function prefillCard(card) {
+    const seId = card.id.replace('exercise-', '');
+    const exerciseId = String(card.dataset.exerciseId);
+    const last = lastSetData[exerciseId];
+    if (!last) return;
+    const exType = card.dataset.exerciseType;
+    if (exType !== 'cardio') {
+      const repsIn = document.getElementById(`reps-${seId}`);
+      const weightIn = document.getElementById(`weight-${seId}`);
+      if (repsIn && last.reps != null) repsIn.value = last.reps;
+      if (weightIn && last.weight != null) weightIn.value = last.weight;
+    } else {
+      const durIn = document.getElementById(`duration-${seId}`);
+      const distIn = document.getElementById(`distance-${seId}`);
+      if (durIn && last.duration_seconds != null) durIn.value = Math.round(last.duration_seconds / 60);
+      if (distIn && last.distance_meters != null) distIn.value = last.distance_meters;
+    }
+  }
+
+  function adjustValue(inputId, delta) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    const current = parseFloat(input.value) || 0;
+    const min = parseFloat(input.min) || 0;
+    const newVal = Math.max(min, current + delta);
+    const isDecimal = inputId.startsWith('weight') || inputId.startsWith('distance');
+    input.value = isDecimal ? newVal.toFixed(1) : Math.round(newVal);
+  }
+
+  function logSet(sessionExerciseId) {
+    const card = document.getElementById(`exercise-${sessionExerciseId}`);
+    const exType = card ? card.dataset.exerciseType : 'strength';
+    const isCardio = exType === 'cardio';
+    const csrf = document.getElementById('csrf-token').value;
+    const btn = event.currentTarget;
+
+    let payload = {};
+    if (!isCardio) {
+      const reps = parseInt(document.getElementById(`reps-${sessionExerciseId}`)?.value) || 0;
+      const weight = parseFloat(document.getElementById(`weight-${sessionExerciseId}`)?.value) || 0;
+      if (reps === 0) { showError('Introduce el número de repeticiones'); return; }
+      payload = { reps, weight };
+    } else {
+      const durationMin = parseFloat(document.getElementById(`duration-${sessionExerciseId}`)?.value) || 0;
+      const distance = parseFloat(document.getElementById(`distance-${sessionExerciseId}`)?.value) || 0;
+      payload = { duration_seconds: Math.round(durationMin * 60), distance_meters: distance };
+    }
+
+    const origText = btn.textContent;
+    btn.textContent = 'Guardando...';
+    btn.disabled = true;
+
+    fetch(`/sessions/set/${sessionExerciseId}/log/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf },
+      body: JSON.stringify(payload)
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        const setsContainer = document.getElementById(`sets-${sessionExerciseId}`);
+        const row = document.createElement('div');
+        row.className = 'grid grid-cols-[2rem_1fr_1fr_2rem] gap-2 items-center px-4 py-3 border-t border-gray-50 dark:border-gray-700';
+        row.id = `set-row-${data.set_id}`;
+        let col1 = '', col2 = '';
+        if (!isCardio) {
+          col1 = `${data.reps}`;
+          col2 = `${data.weight || 0} kg`;
+        } else {
+          col1 = `${Math.round((data.duration_seconds || 0) / 60)} min`;
+          col2 = `${data.distance_meters || 0} m`;
+        }
+        row.innerHTML = `
+          <span class="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 text-xs font-bold flex items-center justify-center">${data.set_number}</span>
+          <span class="text-sm font-semibold text-gray-900 dark:text-white text-center">${col1}</span>
+          <span class="text-sm font-semibold text-gray-700 dark:text-gray-300 text-center">${col2}</span>
+          <button onclick="deleteSet(${data.set_id}, this)" type="button"
+                  class="w-6 h-6 flex items-center justify-center text-gray-300 dark:text-gray-600 hover:text-red-500 dark:hover:text-red-400 transition-colors">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        `;
+        setsContainer.appendChild(row);
+
+        const counter = document.getElementById(`count-${sessionExerciseId}`);
+        if (counter) counter.textContent = data.total_sets;
+        const emptyState = document.getElementById('empty-state');
+        if (emptyState) emptyState.remove();
+      }
+    })
+    .catch(err => console.error('Error logging set:', err))
+    .finally(() => {
+      btn.textContent = origText;
+      btn.disabled = false;
+    });
+  }
+
+  function deleteSet(setId, btn) {
+    const row = document.getElementById(`set-row-${setId}`);
+    // If row exists in DOM it's a saved set — confirm before deleting
+    if (!confirm('¿Eliminar esta serie?')) return;
+    const csrf = document.getElementById('csrf-token').value;
+    fetch(`/sessions/set/${setId}/delete/`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrf },
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success && row) {
+        // Find the session exercise container to update counter
+        const card = row.closest('[data-exercise-id]');
+        if (card) {
+          const seId = card.id.replace('exercise-', '');
+          const counter = document.getElementById(`count-${seId}`);
+          if (counter) counter.textContent = data.total_sets;
+        }
+        row.remove();
+      }
+    })
+    .catch(err => console.error('Error deleting set:', err));
+  }
+
+  function quickAddExercise(exerciseId, exerciseName) {
+    openAddSheet();
+    const select = document.getElementById('add-exercise-select');
+    if (select) select.value = exerciseId;
+  }
+
+  function openAddSheet() {
+    const sheet = document.getElementById('add-exercise-sheet');
+    if (sheet) {
+      sheet.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function closeAddSheet() {
+    const sheet = document.getElementById('add-exercise-sheet');
+    if (sheet) {
+      sheet.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  function showError(msg) {
+    // Briefly show an error toast
+    const toast = document.createElement('div');
+    toast.className = 'fixed top-4 left-4 right-4 z-50 bg-red-600 text-white px-4 py-3 rounded-xl text-sm font-medium shadow-lg';
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
+</script>
+{% endblock %}
