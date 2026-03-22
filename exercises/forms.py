@@ -10,9 +10,11 @@ class ExerciseForm(forms.ModelForm):
         label='Grupos musculares'
     )
 
+    INPUT_CLASS = 'block w-full rounded-xl border-gray-300 shadow-sm focus:ring-primary-500 focus:border-primary-500 px-4 py-3'
+
     class Meta:
         model = Exercise
-        fields = ('name', 'description', 'muscle_groups', 'exercise_type', 'image', 'is_public')
+        fields = ('name', 'description', 'muscle_groups', 'exercise_type', 'image', 'video_url', 'met_value', 'is_public')
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'block w-full rounded-xl border-gray-300 shadow-sm focus:ring-primary-500 focus:border-primary-500 px-4 py-3',
@@ -25,6 +27,15 @@ class ExerciseForm(forms.ModelForm):
             }),
             'exercise_type': forms.Select(attrs={
                 'class': 'block w-full rounded-xl border-gray-300 shadow-sm focus:ring-primary-500 focus:border-primary-500 px-4 py-3',
+            }),
+            'video_url': forms.URLInput(attrs={
+                'class': 'block w-full rounded-xl border-gray-300 shadow-sm focus:ring-primary-500 focus:border-primary-500 px-4 py-3',
+                'placeholder': 'https://www.youtube.com/watch?v=...'
+            }),
+            'met_value': forms.NumberInput(attrs={
+                'class': 'block w-full rounded-xl border-gray-300 shadow-sm focus:ring-primary-500 focus:border-primary-500 px-4 py-3',
+                'placeholder': 'ej. 5.0 (fuerza), 8.0 (carrera)',
+                'step': '0.5', 'min': '1',
             }),
             'is_public': forms.CheckboxInput(attrs={
                 'class': 'rounded border-gray-300 text-primary-600 focus:ring-primary-500 h-5 w-5',

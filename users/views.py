@@ -7,8 +7,8 @@ from django.db.models import Count, Q
 from datetime import date, timedelta
 from django.http import JsonResponse
 
-from .models import User
-from .forms import RegisterForm, ProfileForm, AdminUserCreateForm, AdminUserEditForm
+from .models import User, BodyMetric
+from .forms import RegisterForm, ProfileForm, AdminUserCreateForm, AdminUserEditForm, BodyMetricForm
 
 
 def register_view(request):
@@ -74,7 +74,39 @@ def profile_view(request):
     else:
         form = ProfileForm(instance=request.user)
 
-    return render(request, 'users/profile.html', {'form': form})
+    # Body metrics: last 30 entries for chart
+    body_metrics = BodyMetric.objects.filter(user=request.user).order_by('date')[:30]
+    body_metric_form = BodyMetricForm(initial={'date': date.today()})
+
+    # PRs
+    from sessions.models import PersonalRecord
+    personal_records = PersonalRecord.objects.filter(
+        user=request.user
+    ).select_related('exercise').order_by('exercise__name', 'record_type')
+
+    return render(request, 'users/profile.html', {
+        'form': form,
+        'body_metrics': body_metrics,
+        'body_metric_form': body_metric_form,
+        'personal_records': personal_records,
+    })
+
+
+@login_required
+def add_body_metric(request):
+    if request.method == 'POST':
+        form = BodyMetricForm(request.POST)
+        if form.is_valid():
+            metric = form.save(commit=False)
+            metric.user = request.user
+            metric.save()
+            # Update user's current weight
+            request.user.weight_kg = metric.weight_kg
+            request.user.save(update_fields=['weight_kg'])
+            messages.success(request, 'Peso registrado correctamente.')
+        else:
+            messages.error(request, 'Por favor, corrige los errores.')
+    return redirect('users:profile')
 
 
 @login_required

@@ -59,6 +59,21 @@ class WorkoutSession(models.Model):
         emojis = {1: '😞', 2: '😐', 3: '🙂', 4: '😊', 5: '😄'}
         return emojis.get(self.mood, '')
 
+    def estimated_calories(self):
+        """Estimate kcal burned. Strength: reps×weight×0.00086. Cardio: MET×weight×hours."""
+        total = 0.0
+        user_weight = float(self.user.weight_kg) if self.user.weight_kg else 70.0
+        for se in self.session_exercises.select_related('exercise').prefetch_related('sets').all():
+            ex = se.exercise
+            for s in se.sets.filter(completed=True):
+                if ex.exercise_type == 'strength':
+                    if s.reps and s.weight:
+                        total += s.reps * float(s.weight) * 0.00086
+                else:
+                    if s.duration_seconds:
+                        total += ex.get_met() * user_weight * (s.duration_seconds / 3600)
+        return round(total, 0)
+
 
 class SessionExercise(models.Model):
     session = models.ForeignKey(
@@ -133,3 +148,30 @@ class ExerciseSet(models.Model):
 
     def __str__(self):
         return f"Serie {self.set_number}: {self.reps} x {self.weight}kg"
+
+
+class PersonalRecord(models.Model):
+    RECORD_TYPES = [
+        ('max_weight', 'Peso máximo'),
+        ('max_reps', 'Máx. repeticiones'),
+        ('max_volume', 'Volumen máximo'),
+        ('best_distance', 'Mejor distancia'),
+    ]
+    user = models.ForeignKey(
+        'users.User', on_delete=models.CASCADE, related_name='personal_records'
+    )
+    exercise = models.ForeignKey(
+        'exercises.Exercise', on_delete=models.CASCADE, related_name='personal_records'
+    )
+    value = models.FloatField()
+    record_type = models.CharField(max_length=20, choices=RECORD_TYPES)
+    achieved_at = models.DateField()
+
+    class Meta:
+        unique_together = ('user', 'exercise', 'record_type')
+        verbose_name = 'Récord personal'
+        verbose_name_plural = 'Récords personales'
+        ordering = ['exercise__name', 'record_type']
+
+    def __str__(self):
+        return f"{self.user.username} — {self.exercise.name} — {self.get_record_type_display()}: {self.value}"

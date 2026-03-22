@@ -40,18 +40,29 @@ class Exercise(models.Model):
         ('bodyweight', 'Peso corporal'),
         ('cardio_machine', 'Máquina cardio'),
     ]
+    # Default MET values by type: strength=5.0, cardio=6.0 (generic)
+    MET_DEFAULTS = {'strength': 5.0, 'cardio': 6.0, 'flexibility': 3.5}
+
     name = models.CharField(max_length=100, verbose_name='Nombre')
     description = models.TextField(blank=True, verbose_name='Descripción')
     muscle_groups = models.ManyToManyField(MuscleGroup, related_name='exercises', verbose_name='Grupos musculares')
     exercise_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='strength', verbose_name='Tipo')
     equipment = models.CharField(max_length=20, choices=EQUIPMENT_CHOICES, blank=True, verbose_name='Material/Equipo')
     image = models.ImageField(upload_to='exercises/', blank=True, null=True, verbose_name='Imagen')
+    video_url = models.URLField(blank=True, verbose_name='URL vídeo técnica (YouTube)')
+    met_value = models.FloatField(null=True, blank=True, verbose_name='Valor MET (calorías)')
     created_by = models.ForeignKey(
         'users.User', on_delete=models.SET_NULL,
         null=True, blank=True, related_name='created_exercises'
     )
     is_public = models.BooleanField(default=True, verbose_name='Público')
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def get_met(self):
+        """Return met_value if set, otherwise default by exercise_type."""
+        if self.met_value:
+            return self.met_value
+        return self.MET_DEFAULTS.get(self.exercise_type, 6.0)
 
     class Meta:
         verbose_name = 'Ejercicio'

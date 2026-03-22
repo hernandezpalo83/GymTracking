@@ -9,7 +9,7 @@ from django.views.decorators.http import require_POST
 import json
 from datetime import date
 
-from .models import WorkoutSession, SessionExercise, ExerciseSet
+from .models import WorkoutSession, SessionExercise, ExerciseSet, PersonalRecord
 from .forms import WorkoutSessionForm, SessionExerciseForm, ExerciseSetForm
 from exercises.models import Exercise
 

@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import User
+from .models import User, BodyMetric
 
 
 INPUT_CLASS = 'block w-full rounded-xl border-gray-300 shadow-sm focus:ring-primary-500 focus:border-primary-500 px-4 py-3'
@@ -50,12 +50,31 @@ class RegisterForm(UserCreationForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ('email', 'first_name', 'last_name', 'bio', 'avatar')
+        fields = ('email', 'first_name', 'last_name', 'bio', 'avatar', 'weight_kg')
         widgets = {
             'email': forms.EmailInput(attrs={'class': INPUT_CLASS}),
             'first_name': forms.TextInput(attrs={'class': INPUT_CLASS}),
             'last_name': forms.TextInput(attrs={'class': INPUT_CLASS}),
             'bio': forms.Textarea(attrs={'class': INPUT_CLASS, 'rows': 4}),
+            'weight_kg': forms.NumberInput(attrs={
+                'class': INPUT_CLASS, 'placeholder': 'ej. 75.5', 'step': '0.5', 'min': '30', 'max': '300'
+            }),
+        }
+
+
+class BodyMetricForm(forms.ModelForm):
+    class Meta:
+        model = BodyMetric
+        fields = ('date', 'weight_kg', 'body_fat_pct', 'notes')
+        widgets = {
+            'date': forms.DateInput(attrs={'class': INPUT_CLASS, 'type': 'date'}),
+            'weight_kg': forms.NumberInput(attrs={
+                'class': INPUT_CLASS, 'placeholder': 'ej. 75.5', 'step': '0.1', 'min': '30'
+            }),
+            'body_fat_pct': forms.NumberInput(attrs={
+                'class': INPUT_CLASS, 'placeholder': 'ej. 18.5', 'step': '0.1', 'min': '3', 'max': '60'
+            }),
+            'notes': forms.Textarea(attrs={'class': INPUT_CLASS, 'rows': 2, 'placeholder': 'Notas opcionales...'}),
         }
 
 
