@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Configuración del sitio{% endblock %}
+{% block meta_description %}Panel de configuración de GymTracking{% endblock %}
+
+{% block page_header %}
+<div class="mb-6">
+  <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Configuración del sitio</h1>
+  <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Parámetros globales de la aplicación</p>
+</div>
+{% endblock %}
+
+{% block content %}
+<form method="post" class="space-y-6 max-w-2xl">
+  {% csrf_token %}
+
+  <!-- Registro -->
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+    <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-4">Acceso y registro</h2>
+    <label class="flex items-center gap-3 cursor-pointer">
+      {{ form.registration_enabled }}
+      <span class="text-sm text-gray-700 dark:text-gray-300">{{ form.registration_enabled.label }}</span>
+    </label>
+    {% if form.registration_enabled.errors %}
+      <p class="text-xs text-red-600 mt-1">{{ form.registration_enabled.errors.0 }}</p>
+    {% endif %}
+    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+      Si está desactivado, los usuarios no podrán crear cuentas nuevas desde la web.
+    </p>
+  </div>
+
+  <!-- Stripe -->
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+    <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-4">Pagos con Stripe</h2>
+
+    <label class="flex items-center gap-3 cursor-pointer mb-4">
+      {{ form.stripe_enabled }}
+      <span class="text-sm text-gray-700 dark:text-gray-300">{{ form.stripe_enabled.label }}</span>
+    </label>
+
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          {{ form.stripe_public_key.label }}
+        </label>
+        {{ form.stripe_public_key }}
+        {% if form.stripe_public_key.errors %}
+          <p class="text-xs text-red-600 mt-1">{{ form.stripe_public_key.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          {{ form.stripe_secret_key.label }}
+        </label>
+        {{ form.stripe_secret_key }}
+        {% if form.stripe_secret_key.errors %}
+          <p class="text-xs text-red-600 mt-1">{{ form.stripe_secret_key.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          {{ form.stripe_price_id.label }}
+        </label>
+        {{ form.stripe_price_id }}
+        {% if form.stripe_price_id.errors %}
+          <p class="text-xs text-red-600 mt-1">{{ form.stripe_price_id.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          {{ form.free_trial_days.label }}
+        </label>
+        {{ form.free_trial_days }}
+        {% if form.free_trial_days.errors %}
+          <p class="text-xs text-red-600 mt-1">{{ form.free_trial_days.errors.0 }}</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="flex justify-end">
+    <button type="submit"
+            class="inline-flex items-center gap-2 font-semibold rounded-xl bg-indigo-600 text-white px-6 py-3 text-sm hover:bg-indigo-700 transition-colors">
+      Guardar configuración
+    </button>
+  </div>
+</form>
+{% endblock %}

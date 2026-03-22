@@ -12,6 +12,7 @@ urlpatterns = [
     path('exercises/', include('exercises.urls', namespace='exercises')),
     path('plans/', include('plans.urls', namespace='plans')),
     path('sessions/', include('sessions.urls', namespace='sessions')),
+    path('admin-config/', include('config.urls', namespace='config')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

@@ -1,0 +1,882 @@
+[
+  {
+    "model": "exercises.musclegroup",
+    "pk": 1,
+    "fields": {
+      "name": "chest"
+    }
+  },
+  {
+    "model": "exercises.musclegroup",
+    "pk": 2,
+    "fields": {
+      "name": "back"
+    }
+  },
+  {
+    "model": "exercises.musclegroup",
+    "pk": 3,
+    "fields": {
+      "name": "legs"
+    }
+  },
+  {
+    "model": "exercises.musclegroup",
+    "pk": 4,
+    "fields": {
+      "name": "shoulders"
+    }
+  },
+  {
+    "model": "exercises.musclegroup",
+    "pk": 5,
+    "fields": {
+      "name": "biceps"
+    }
+  },
+  {
+    "model": "exercises.musclegroup",
+    "pk": 6,
+    "fields": {
+      "name": "triceps"
+    }
+  },
+  {
+    "model": "exercises.musclegroup",
+    "pk": 7,
+    "fields": {
+      "name": "core"
+    }
+  },
+  {
+    "model": "exercises.musclegroup",
+    "pk": 8,
+    "fields": {
+      "name": "cardio"
+    }
+  },
+  {
+    "model": "exercises.musclegroup",
+    "pk": 9,
+    "fields": {
+      "name": "glutes"
+    }
+  },
+  {
+    "model": "exercises.musclegroup",
+    "pk": 10,
+    "fields": {
+      "name": "calves"
+    }
+  },
+  {
+    "model": "exercises.musclegroup",
+    "pk": 11,
+    "fields": {
+      "name": "forearms"
+    }
+  },
+  {
+    "model": "exercises.musclegroup",
+    "pk": 12,
+    "fields": {
+      "name": "full_body"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 1,
+    "fields": {
+      "name": "Press de banca plano",
+      "description": "Ejercicio compuesto para el pecho. Tumbado en el banco, baja la barra hasta el pecho y empuja hasta la extensión completa.",
+      "exercise_type": "strength",
+      "equipment": "weights",
+      "is_public": true,
+      "muscle_groups": [
+        1,
+        6
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 2,
+    "fields": {
+      "name": "Press de banca inclinado",
+      "description": "Igual que el press plano pero con el banco a 30-45°. Enfatiza la parte superior del pecho.",
+      "exercise_type": "strength",
+      "equipment": "weights",
+      "is_public": true,
+      "muscle_groups": [
+        1,
+        4,
+        6
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 3,
+    "fields": {
+      "name": "Aperturas con mancuernas",
+      "description": "Tumbado en banco plano, con mancuernas en cada mano, abre los brazos en arco hasta sentir el estiramiento en el pecho.",
+      "exercise_type": "strength",
+      "equipment": "weights",
+      "is_public": true,
+      "muscle_groups": [
+        1
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 4,
+    "fields": {
+      "name": "Cruces en polea",
+      "description": "De pie entre dos poleas altas, lleva las manos hacia el centro cruzándolas. Ideal para aislar el pecho.",
+      "exercise_type": "strength",
+      "equipment": "pulley",
+      "is_public": true,
+      "muscle_groups": [
+        1
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 5,
+    "fields": {
+      "name": "Fondos en paralelas (pecho)",
+      "description": "Apoyado en paralelas, inclina el cuerpo hacia delante y baja hasta que los codos formen 90°. Trabaja principalmente el pecho.",
+      "exercise_type": "strength",
+      "equipment": "bodyweight",
+      "is_public": true,
+      "muscle_groups": [
+        1,
+        6
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 6,
+    "fields": {
+      "name": "Dominadas",
+      "description": "Colgado de una barra, sube el cuerpo hasta que la barbilla supere la barra. Ejercicio compuesto fundamental para la espalda.",
+      "exercise_type": "strength",
+      "equipment": "bodyweight",
+      "is_public": true,
+      "muscle_groups": [
+        2,
+        5
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 7,
+    "fields": {
+      "name": "Remo con barra",
+      "description": "Con las rodillas ligeramente flexionadas y espalda recta, tira de la barra hacia el abdomen. Gran ejercicio para el grosor de la espalda.",
+      "exercise_type": "strength",
+      "equipment": "weights",
+      "is_public": true,
+      "muscle_groups": [
+        2,
+        5
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 8,
+    "fields": {
+      "name": "Remo en polea baja",
+      "description": "Sentado frente a la polea baja, tira del agarre hacia el abdomen manteniendo la espalda erguida.",
+      "exercise_type": "strength",
+      "equipment": "pulley",
+      "is_public": true,
+      "muscle_groups": [
+        2,
+        5
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 9,
+    "fields": {
+      "name": "Jalón al pecho",
+      "description": "Sentado en la máquina de jalón, tira de la barra hacia el pecho. Alternativa guiada a las dominadas.",
+      "exercise_type": "strength",
+      "equipment": "pulley",
+      "is_public": true,
+      "muscle_groups": [
+        2,
+        5
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 10,
+    "fields": {
+      "name": "Peso muerto",
+      "description": "Levanta la barra desde el suelo hasta la posición de pie manteniendo la espalda recta. Ejercicio compuesto fundamental.",
+      "exercise_type": "strength",
+      "equipment": "weights",
+      "is_public": true,
+      "muscle_groups": [
+        2,
+        3,
+        9
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 11,
+    "fields": {
+      "name": "Sentadilla con barra",
+      "description": "Con la barra en la espalda, baja hasta que los muslos estén paralelos al suelo. El rey de los ejercicios de pierna.",
+      "exercise_type": "strength",
+      "equipment": "weights",
+      "is_public": true,
+      "muscle_groups": [
+        3,
+        9
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 12,
+    "fields": {
+      "name": "Prensa de piernas",
+      "description": "Sentado en la máquina, empuja la plataforma con los pies hasta la extensión completa de rodillas.",
+      "exercise_type": "strength",
+      "equipment": "machine",
+      "is_public": true,
+      "muscle_groups": [
+        3,
+        9
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 13,
+    "fields": {
+      "name": "Extensión de cuádriceps",
+      "description": "Sentado en la máquina de extensión, extiende las piernas hasta la posición recta para aislar el cuádriceps.",
+      "exercise_type": "strength",
+      "equipment": "machine",
+      "is_public": true,
+      "muscle_groups": [
+        3
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 14,
+    "fields": {
+      "name": "Curl femoral tumbado",
+      "description": "Tumbado boca abajo en la máquina, flexiona las rodillas llevando los talones hacia los glúteos.",
+      "exercise_type": "strength",
+      "equipment": "machine",
+      "is_public": true,
+      "muscle_groups": [
+        3
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 15,
+    "fields": {
+      "name": "Zancadas con mancuernas",
+      "description": "Da un paso largo hacia delante y baja la rodilla trasera hasta casi tocar el suelo. Alterna piernas.",
+      "exercise_type": "strength",
+      "equipment": "weights",
+      "is_public": true,
+      "muscle_groups": [
+        3,
+        9
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 16,
+    "fields": {
+      "name": "Hip thrust",
+      "description": "Con la espalda apoyada en un banco y la barra sobre las caderas, eleva las caderas hasta la extensión completa. Fundamental para glúteos.",
+      "exercise_type": "strength",
+      "equipment": "weights",
+      "is_public": true,
+      "muscle_groups": [
+        9,
+        3
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 17,
+    "fields": {
+      "name": "Gemelos de pie (pantorrilla)",
+      "description": "De pie en el borde de un escalón, eleva los talones hasta la punta del pie y baja lentamente.",
+      "exercise_type": "strength",
+      "equipment": "machine",
+      "is_public": true,
+      "muscle_groups": [
+        10
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 18,
+    "fields": {
+      "name": "Press militar con barra",
+      "description": "De pie o sentado, empuja la barra desde los hombros hasta la extensión completa sobre la cabeza.",
+      "exercise_type": "strength",
+      "equipment": "weights",
+      "is_public": true,
+      "muscle_groups": [
+        4,
+        6
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 19,
+    "fields": {
+      "name": "Elevaciones laterales con mancuernas",
+      "description": "De pie, levanta las mancuernas a los lados hasta la altura de los hombros. Aísla el deltoides lateral.",
+      "exercise_type": "strength",
+      "equipment": "weights",
+      "is_public": true,
+      "muscle_groups": [
+        4
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 20,
+    "fields": {
+      "name": "Elevaciones frontales con mancuernas",
+      "description": "De pie, levanta las mancuernas hacia delante hasta la altura de los hombros. Trabaja el deltoides anterior.",
+      "exercise_type": "strength",
+      "equipment": "weights",
+      "is_public": true,
+      "muscle_groups": [
+        4
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 21,
+    "fields": {
+      "name": "Pájaros con mancuernas",
+      "description": "Inclinado hacia delante, levanta las mancuernas hacia los lados. Trabaja el deltoides posterior.",
+      "exercise_type": "strength",
+      "equipment": "weights",
+      "is_public": true,
+      "muscle_groups": [
+        4,
+        2
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 22,
+    "fields": {
+      "name": "Encogimientos de hombros",
+      "description": "Con mancuernas o barra, encoge los hombros hacia las orejas para trabajar el trapecio.",
+      "exercise_type": "strength",
+      "equipment": "weights",
+      "is_public": true,
+      "muscle_groups": [
+        4
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 23,
+    "fields": {
+      "name": "Curl de bíceps con barra",
+      "description": "De pie, sujeta la barra con agarre supino y flexiona los codos llevando la barra hacia los hombros.",
+      "exercise_type": "strength",
+      "equipment": "weights",
+      "is_public": true,
+      "muscle_groups": [
+        5
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 24,
+    "fields": {
+      "name": "Curl de bíceps con mancuernas",
+      "description": "De pie o sentado, flexiona los codos alternando o simultáneamente con una mancuerna en cada mano.",
+      "exercise_type": "strength",
+      "equipment": "weights",
+      "is_public": true,
+      "muscle_groups": [
+        5
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 25,
+    "fields": {
+      "name": "Curl martillo",
+      "description": "Igual que el curl con mancuernas pero con agarre neutro (palmas mirando hacia adentro). Trabaja el braquial.",
+      "exercise_type": "strength",
+      "equipment": "weights",
+      "is_public": true,
+      "muscle_groups": [
+        5,
+        11
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 26,
+    "fields": {
+      "name": "Curl en polea baja",
+      "description": "De pie frente a la polea baja, flexiona los codos para llevar el agarre hacia los hombros.",
+      "exercise_type": "strength",
+      "equipment": "pulley",
+      "is_public": true,
+      "muscle_groups": [
+        5
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 27,
+    "fields": {
+      "name": "Press francés con barra Z",
+      "description": "Tumbado en banco, con la barra Z sobre el pecho, flexiona los codos llevando la barra hacia la frente.",
+      "exercise_type": "strength",
+      "equipment": "weights",
+      "is_public": true,
+      "muscle_groups": [
+        6
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 28,
+    "fields": {
+      "name": "Extensión de tríceps en polea alta",
+      "description": "De pie frente a la polea alta, empuja el agarre hacia abajo extendiendo completamente los codos.",
+      "exercise_type": "strength",
+      "equipment": "pulley",
+      "is_public": true,
+      "muscle_groups": [
+        6
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 29,
+    "fields": {
+      "name": "Fondos en paralelas (tríceps)",
+      "description": "En paralelas con el cuerpo recto, baja flexionando los codos y sube extendiendo. Trabaja principalmente el tríceps.",
+      "exercise_type": "strength",
+      "equipment": "bodyweight",
+      "is_public": true,
+      "muscle_groups": [
+        6,
+        1
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 30,
+    "fields": {
+      "name": "Patada de tríceps con mancuerna",
+      "description": "Inclinado hacia delante con una mano apoyada, extiende el brazo hacia atrás con la mancuerna.",
+      "exercise_type": "strength",
+      "equipment": "weights",
+      "is_public": true,
+      "muscle_groups": [
+        6
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 31,
+    "fields": {
+      "name": "Plancha",
+      "description": "Apoyado en antebrazos y punta de los pies, mantén el cuerpo recto como una tabla. Trabaja todo el core.",
+      "exercise_type": "strength",
+      "equipment": "bodyweight",
+      "is_public": true,
+      "muscle_groups": [
+        7
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 32,
+    "fields": {
+      "name": "Crunch abdominal",
+      "description": "Tumbado boca arriba con rodillas flexionadas, eleva los hombros del suelo contrayendo el abdomen.",
+      "exercise_type": "strength",
+      "equipment": "bodyweight",
+      "is_public": true,
+      "muscle_groups": [
+        7
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 33,
+    "fields": {
+      "name": "Rueda abdominal",
+      "description": "Arrodillado con la rueda en el suelo, rueda hacia delante estirando el cuerpo y vuelve contrayendo el core.",
+      "exercise_type": "strength",
+      "equipment": "home",
+      "is_public": true,
+      "muscle_groups": [
+        7
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 34,
+    "fields": {
+      "name": "Elevación de piernas tumbado",
+      "description": "Tumbado boca arriba, eleva las piernas rectas hasta 90° y bájalas sin tocar el suelo.",
+      "exercise_type": "strength",
+      "equipment": "bodyweight",
+      "is_public": true,
+      "muscle_groups": [
+        7
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 35,
+    "fields": {
+      "name": "Carrera en cinta",
+      "description": "Correr a ritmo moderado o en intervalos en la cinta de correr. Ejercicio cardiovascular completo.",
+      "exercise_type": "cardio",
+      "equipment": "cardio_machine",
+      "is_public": true,
+      "muscle_groups": [
+        8,
+        3
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 36,
+    "fields": {
+      "name": "Bicicleta estática",
+      "description": "Pedalear en bicicleta estática a ritmo constante o en intervalos. Bajo impacto articular.",
+      "exercise_type": "cardio",
+      "equipment": "cardio_machine",
+      "is_public": true,
+      "muscle_groups": [
+        8,
+        3
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 37,
+    "fields": {
+      "name": "Máquina elíptica",
+      "description": "Entrenamiento cardio de bajo impacto que combina movimientos de piernas y brazos.",
+      "exercise_type": "cardio",
+      "equipment": "cardio_machine",
+      "is_public": true,
+      "muscle_groups": [
+        8,
+        12
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 38,
+    "fields": {
+      "name": "Saltar a la comba",
+      "description": "Saltar con una cuerda de saltar a ritmo constante. Excelente ejercicio cardio de alta intensidad.",
+      "exercise_type": "cardio",
+      "equipment": "home",
+      "is_public": true,
+      "muscle_groups": [
+        8,
+        10
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 39,
+    "fields": {
+      "name": "Remo ergómetro",
+      "description": "Remar en la máquina de remo. Ejercicio cardio que trabaja todo el cuerpo con bajo impacto.",
+      "exercise_type": "cardio",
+      "equipment": "cardio_machine",
+      "is_public": true,
+      "muscle_groups": [
+        8,
+        2,
+        3
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 40,
+    "fields": {
+      "name": "Press de hombros con mancuernas",
+      "description": "Sentado o de pie, empuja las mancuernas desde la altura de los hombros hasta la extensión completa.",
+      "exercise_type": "strength",
+      "equipment": "weights",
+      "is_public": true,
+      "muscle_groups": [
+        4,
+        6
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 41,
+    "fields": {
+      "name": "Sentadilla búlgara",
+      "description": "Con el pie trasero elevado en un banco, baja en cuclillas con la pierna delantera. Intenso ejercicio unilateral.",
+      "exercise_type": "strength",
+      "equipment": "weights",
+      "is_public": true,
+      "muscle_groups": [
+        3,
+        9
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 42,
+    "fields": {
+      "name": "Remo con mancuerna a una mano",
+      "description": "Con una mano apoyada en el banco, tira de la mancuerna hacia la cadera. Excelente para el grosor de la espalda.",
+      "exercise_type": "strength",
+      "equipment": "weights",
+      "is_public": true,
+      "muscle_groups": [
+        2,
+        5
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 43,
+    "fields": {
+      "name": "Face pull en polea",
+      "description": "Tira de la cuerda de la polea alta hacia la cara separando las manos. Trabaja el deltoides posterior y manguito.",
+      "exercise_type": "strength",
+      "equipment": "pulley",
+      "is_public": true,
+      "muscle_groups": [
+        4,
+        2
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 44,
+    "fields": {
+      "name": "Sentadilla goblet",
+      "description": "Sostén una mancuerna o kettlebell frente al pecho y realiza una sentadilla profunda. Ideal para principiantes.",
+      "exercise_type": "strength",
+      "equipment": "weights",
+      "is_public": true,
+      "muscle_groups": [
+        3,
+        9
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "exercises.exercise",
+    "pk": 45,
+    "fields": {
+      "name": "Flexiones",
+      "description": "En posición de plancha alta, baja el pecho hasta casi tocar el suelo y sube. Clásico ejercicio de pecho sin material.",
+      "exercise_type": "strength",
+      "equipment": "bodyweight",
+      "is_public": true,
+      "muscle_groups": [
+        1,
+        6,
+        7
+      ],
+      "image": "",
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  }
+]

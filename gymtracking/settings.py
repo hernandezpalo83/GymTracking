@@ -34,6 +34,7 @@ _base_apps = [
     'plans',
     'sessions',
     'reports',
+    'config',
 ]
 
 # Add components_ui only if available
@@ -67,6 +68,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'config.context_processors.site_settings',
             ],
         },
     },
@@ -143,7 +145,9 @@ MESSAGE_TAGS = {
 
 # Security headers (active in production)
 if not DEBUG:
-    SECURE_SSL_REDIRECT = True
+    # Koyeb gestiona SSL externamente, no redirigir desde Django
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    # SECURE_SSL_REDIRECT = False  # Koyeb handles this
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'

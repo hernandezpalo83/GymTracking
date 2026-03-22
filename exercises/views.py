@@ -29,6 +29,10 @@ class ExerciseListView(LoginRequiredMixin, ListView):
         if exercise_type:
             queryset = queryset.filter(exercise_type=exercise_type)
 
+        equipment = self.request.GET.get('equipment')
+        if equipment:
+            queryset = queryset.filter(equipment=equipment)
+
         search = self.request.GET.get('q')
         if search:
             queryset = queryset.filter(
@@ -41,8 +45,10 @@ class ExerciseListView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['muscle_groups'] = MuscleGroup.objects.all()
         context['type_choices'] = Exercise.TYPE_CHOICES
+        context['equipment_choices'] = Exercise.EQUIPMENT_CHOICES
         context['current_muscle_group'] = self.request.GET.get('muscle_group', '')
         context['current_type'] = self.request.GET.get('type', '')
+        context['current_equipment'] = self.request.GET.get('equipment', '')
         context['search_query'] = self.request.GET.get('q', '')
         return context
 

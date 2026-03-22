@@ -43,17 +43,32 @@
         Todos
       </a>
       {% for value, label in type_choices %}
-      <a href="?type={{ value }}{% if search_query %}&q={{ search_query }}{% endif %}"
+      <a href="?type={{ value }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_equipment %}&equipment={{ current_equipment }}{% endif %}{% if current_muscle_group %}&muscle_group={{ current_muscle_group }}{% endif %}"
          class="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors {% if current_type == value %}bg-indigo-600 text-white{% else %}bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600{% endif %}">
         {{ label }}
       </a>
       {% endfor %}
     </div>
 
+    {% if equipment_choices %}
+    <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+      <a href="{% url 'exercises:list' %}{% if search_query %}?q={{ search_query }}{% endif %}"
+         class="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors {% if not current_equipment %}bg-orange-500 text-white{% else %}bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600{% endif %}">
+        Todo equipo
+      </a>
+      {% for value, label in equipment_choices %}
+      <a href="?equipment={{ value }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_type %}&type={{ current_type }}{% endif %}{% if current_muscle_group %}&muscle_group={{ current_muscle_group }}{% endif %}"
+         class="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors {% if current_equipment == value %}bg-orange-500 text-white{% else %}bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600{% endif %}">
+        {{ label }}
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
     {% if muscle_groups %}
     <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
       {% for mg in muscle_groups %}
-      <a href="?muscle_group={{ mg.name }}{% if search_query %}&q={{ search_query }}{% endif %}"
+      <a href="?muscle_group={{ mg.name }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_type %}&type={{ current_type }}{% endif %}{% if current_equipment %}&equipment={{ current_equipment }}{% endif %}"
          class="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors {% if current_muscle_group == mg.name %}bg-purple-600 text-white{% else %}bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600{% endif %}">
         {{ mg }}
       </a>
@@ -117,7 +132,7 @@
 {% if is_paginated %}
 <div class="flex justify-center items-center gap-2 mt-6">
   {% if page_obj.has_previous %}
-  <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_type %}&type={{ current_type }}{% endif %}{% if current_muscle_group %}&muscle_group={{ current_muscle_group }}{% endif %}"
+  <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_type %}&type={{ current_type }}{% endif %}{% if current_muscle_group %}&muscle_group={{ current_muscle_group }}{% endif %}{% if current_equipment %}&equipment={{ current_equipment }}{% endif %}"
      class="px-4 py-2 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
     Anterior
   </a>
@@ -126,7 +141,7 @@
     Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
   </span>
   {% if page_obj.has_next %}
-  <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_type %}&type={{ current_type }}{% endif %}{% if current_muscle_group %}&muscle_group={{ current_muscle_group }}{% endif %}"
+  <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_type %}&type={{ current_type }}{% endif %}{% if current_muscle_group %}&muscle_group={{ current_muscle_group }}{% endif %}{% if current_equipment %}&equipment={{ current_equipment }}{% endif %}"
      class="px-4 py-2 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
     Siguiente
   </a>
