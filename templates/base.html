@@ -8,9 +8,15 @@
     <meta name="description" content="{% block meta_description %}GymTracking — Tu aplicación de seguimiento de entrenamiento personal{% endblock %}">
     <meta name="robots" content="noindex, nofollow">
     <title>{% block title %}GymTracking{% endblock %} | GymTracking</title>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234f46e5'><path d='M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z'/></svg>">
+    <!-- Fonts: preconnect + non-render-blocking load -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"></noscript>
+    <!-- Tailwind: preload hint so download starts immediately -->
+    <link rel="preload" as="script" href="https://cdn.tailwindcss.com">
 
     <script>
     // Dark mode: apply immediately from localStorage to avoid flash
@@ -45,7 +51,6 @@
     }
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
       body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
       .bottom-nav-safe { padding-bottom: env(safe-area-inset-bottom); }
