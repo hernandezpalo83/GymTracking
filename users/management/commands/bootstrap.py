@@ -21,6 +21,12 @@ class Command(BaseCommand):
     help = 'Bootstrap de producción: migrate + superuser + fixtures (idempotente)'
 
     def handle(self, *args, **options):
+        # ── 0. Reset DB (solo si RESET_DB=true en variables de entorno) ─────
+        if os.environ.get('RESET_DB', '').lower() == 'true':
+            self.stdout.write(self.style.WARNING('⚠️  RESET_DB=true detectado — limpiando base de datos...'))
+            call_command('flush', '--noinput', verbosity=0)
+            self.stdout.write(self.style.SUCCESS('  ✓ Base de datos vaciada'))
+
         # ── 1. Migraciones ──────────────────────────────────────────────────
         self.stdout.write('→ Aplicando migraciones...')
         call_command('migrate', '--noinput', verbosity=0)
