@@ -15,6 +15,11 @@ def register_view(request):
     if request.user.is_authenticated:
         return redirect('reports:dashboard')
 
+    from config.models import SiteSettings
+    if not SiteSettings.get().registration_enabled:
+        messages.error(request, 'El registro está deshabilitado. Contacta con el administrador.')
+        return redirect('users:login')
+
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():

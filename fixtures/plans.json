@@ -1,0 +1,1191 @@
+[
+  {
+    "model": "plans.trainingplan",
+    "pk": 1,
+    "fields": {
+      "name": "Full Body 3 días",
+      "description": "Plan de cuerpo completo para 3 sesiones semanales (lunes, miércoles, viernes). Basado en ejercicios compuestos principales para ganar fuerza y masa muscular de forma equilibrada.",
+      "plan_type": "weekly",
+      "visibility": "general",
+      "assigned_to": null,
+      "created_by": null,
+      "start_date": null,
+      "end_date": null,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 1,
+    "fields": {
+      "plan": 1,
+      "exercise": 11,
+      "day_of_week": 0,
+      "sets": 4,
+      "reps": 8,
+      "target_weight": null,
+      "rest_seconds": 120,
+      "notes": "Sentadilla — ejercicio principal del día",
+      "order": 1
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 2,
+    "fields": {
+      "plan": 1,
+      "exercise": 1,
+      "day_of_week": 0,
+      "sets": 4,
+      "reps": 8,
+      "target_weight": null,
+      "rest_seconds": 120,
+      "notes": "",
+      "order": 2
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 3,
+    "fields": {
+      "plan": 1,
+      "exercise": 7,
+      "day_of_week": 0,
+      "sets": 3,
+      "reps": 10,
+      "target_weight": null,
+      "rest_seconds": 90,
+      "notes": "",
+      "order": 3
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 4,
+    "fields": {
+      "plan": 1,
+      "exercise": 18,
+      "day_of_week": 0,
+      "sets": 3,
+      "reps": 10,
+      "target_weight": null,
+      "rest_seconds": 90,
+      "notes": "",
+      "order": 4
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 5,
+    "fields": {
+      "plan": 1,
+      "exercise": 31,
+      "day_of_week": 0,
+      "sets": 3,
+      "reps": 45,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "Segundos de plancha en vez de repeticiones",
+      "order": 5
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 6,
+    "fields": {
+      "plan": 1,
+      "exercise": 10,
+      "day_of_week": 2,
+      "sets": 4,
+      "reps": 6,
+      "target_weight": null,
+      "rest_seconds": 150,
+      "notes": "Peso muerto — movimiento principal",
+      "order": 1
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 7,
+    "fields": {
+      "plan": 1,
+      "exercise": 6,
+      "day_of_week": 2,
+      "sets": 4,
+      "reps": 6,
+      "target_weight": null,
+      "rest_seconds": 120,
+      "notes": "",
+      "order": 2
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 8,
+    "fields": {
+      "plan": 1,
+      "exercise": 2,
+      "day_of_week": 2,
+      "sets": 3,
+      "reps": 10,
+      "target_weight": null,
+      "rest_seconds": 90,
+      "notes": "",
+      "order": 3
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 9,
+    "fields": {
+      "plan": 1,
+      "exercise": 19,
+      "day_of_week": 2,
+      "sets": 3,
+      "reps": 12,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 4
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 10,
+    "fields": {
+      "plan": 1,
+      "exercise": 32,
+      "day_of_week": 2,
+      "sets": 3,
+      "reps": 15,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 5
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 11,
+    "fields": {
+      "plan": 1,
+      "exercise": 11,
+      "day_of_week": 4,
+      "sets": 4,
+      "reps": 10,
+      "target_weight": null,
+      "rest_seconds": 90,
+      "notes": "",
+      "order": 1
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 12,
+    "fields": {
+      "plan": 1,
+      "exercise": 1,
+      "day_of_week": 4,
+      "sets": 4,
+      "reps": 10,
+      "target_weight": null,
+      "rest_seconds": 90,
+      "notes": "",
+      "order": 2
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 13,
+    "fields": {
+      "plan": 1,
+      "exercise": 9,
+      "day_of_week": 4,
+      "sets": 3,
+      "reps": 12,
+      "target_weight": null,
+      "rest_seconds": 90,
+      "notes": "",
+      "order": 3
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 14,
+    "fields": {
+      "plan": 1,
+      "exercise": 23,
+      "day_of_week": 4,
+      "sets": 3,
+      "reps": 12,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 4
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 15,
+    "fields": {
+      "plan": 1,
+      "exercise": 28,
+      "day_of_week": 4,
+      "sets": 3,
+      "reps": 12,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 5
+    }
+  },
+  {
+    "model": "plans.trainingplan",
+    "pk": 2,
+    "fields": {
+      "name": "Push Pull Legs (PPL)",
+      "description": "Plan clásico de 6 días dividido en empuje (pecho/hombros/tríceps), tirón (espalda/bíceps) y piernas. Alta frecuencia y volumen para usuarios intermedios.",
+      "plan_type": "weekly",
+      "visibility": "general",
+      "assigned_to": null,
+      "created_by": null,
+      "start_date": null,
+      "end_date": null,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 16,
+    "fields": {
+      "plan": 2,
+      "exercise": 1,
+      "day_of_week": 0,
+      "sets": 4,
+      "reps": 8,
+      "target_weight": null,
+      "rest_seconds": 120,
+      "notes": "Día PUSH — Lunes",
+      "order": 1
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 17,
+    "fields": {
+      "plan": 2,
+      "exercise": 2,
+      "day_of_week": 0,
+      "sets": 3,
+      "reps": 10,
+      "target_weight": null,
+      "rest_seconds": 90,
+      "notes": "",
+      "order": 2
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 18,
+    "fields": {
+      "plan": 2,
+      "exercise": 18,
+      "day_of_week": 0,
+      "sets": 4,
+      "reps": 8,
+      "target_weight": null,
+      "rest_seconds": 90,
+      "notes": "",
+      "order": 3
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 19,
+    "fields": {
+      "plan": 2,
+      "exercise": 19,
+      "day_of_week": 0,
+      "sets": 3,
+      "reps": 15,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 4
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 20,
+    "fields": {
+      "plan": 2,
+      "exercise": 28,
+      "day_of_week": 0,
+      "sets": 3,
+      "reps": 12,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 5
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 21,
+    "fields": {
+      "plan": 2,
+      "exercise": 6,
+      "day_of_week": 1,
+      "sets": 4,
+      "reps": 6,
+      "target_weight": null,
+      "rest_seconds": 120,
+      "notes": "Día PULL — Martes",
+      "order": 1
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 22,
+    "fields": {
+      "plan": 2,
+      "exercise": 7,
+      "day_of_week": 1,
+      "sets": 4,
+      "reps": 8,
+      "target_weight": null,
+      "rest_seconds": 120,
+      "notes": "",
+      "order": 2
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 23,
+    "fields": {
+      "plan": 2,
+      "exercise": 9,
+      "day_of_week": 1,
+      "sets": 3,
+      "reps": 12,
+      "target_weight": null,
+      "rest_seconds": 90,
+      "notes": "",
+      "order": 3
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 24,
+    "fields": {
+      "plan": 2,
+      "exercise": 23,
+      "day_of_week": 1,
+      "sets": 3,
+      "reps": 12,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 4
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 25,
+    "fields": {
+      "plan": 2,
+      "exercise": 26,
+      "day_of_week": 1,
+      "sets": 3,
+      "reps": 15,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 5
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 26,
+    "fields": {
+      "plan": 2,
+      "exercise": 11,
+      "day_of_week": 2,
+      "sets": 4,
+      "reps": 8,
+      "target_weight": null,
+      "rest_seconds": 120,
+      "notes": "Día LEGS — Miércoles",
+      "order": 1
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 27,
+    "fields": {
+      "plan": 2,
+      "exercise": 10,
+      "day_of_week": 2,
+      "sets": 3,
+      "reps": 6,
+      "target_weight": null,
+      "rest_seconds": 150,
+      "notes": "",
+      "order": 2
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 28,
+    "fields": {
+      "plan": 2,
+      "exercise": 16,
+      "day_of_week": 2,
+      "sets": 3,
+      "reps": 12,
+      "target_weight": null,
+      "rest_seconds": 90,
+      "notes": "",
+      "order": 3
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 29,
+    "fields": {
+      "plan": 2,
+      "exercise": 13,
+      "day_of_week": 2,
+      "sets": 3,
+      "reps": 15,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 4
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 30,
+    "fields": {
+      "plan": 2,
+      "exercise": 17,
+      "day_of_week": 2,
+      "sets": 4,
+      "reps": 15,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 5
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 31,
+    "fields": {
+      "plan": 2,
+      "exercise": 1,
+      "day_of_week": 3,
+      "sets": 4,
+      "reps": 10,
+      "target_weight": null,
+      "rest_seconds": 90,
+      "notes": "Día PUSH — Jueves",
+      "order": 1
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 32,
+    "fields": {
+      "plan": 2,
+      "exercise": 4,
+      "day_of_week": 3,
+      "sets": 3,
+      "reps": 15,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 2
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 33,
+    "fields": {
+      "plan": 2,
+      "exercise": 40,
+      "day_of_week": 3,
+      "sets": 3,
+      "reps": 12,
+      "target_weight": null,
+      "rest_seconds": 90,
+      "notes": "",
+      "order": 3
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 34,
+    "fields": {
+      "plan": 2,
+      "exercise": 43,
+      "day_of_week": 3,
+      "sets": 3,
+      "reps": 15,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 4
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 35,
+    "fields": {
+      "plan": 2,
+      "exercise": 27,
+      "day_of_week": 3,
+      "sets": 3,
+      "reps": 12,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 5
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 36,
+    "fields": {
+      "plan": 2,
+      "exercise": 42,
+      "day_of_week": 4,
+      "sets": 4,
+      "reps": 10,
+      "target_weight": null,
+      "rest_seconds": 90,
+      "notes": "Día PULL — Viernes",
+      "order": 1
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 37,
+    "fields": {
+      "plan": 2,
+      "exercise": 8,
+      "day_of_week": 4,
+      "sets": 3,
+      "reps": 12,
+      "target_weight": null,
+      "rest_seconds": 90,
+      "notes": "",
+      "order": 2
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 38,
+    "fields": {
+      "plan": 2,
+      "exercise": 24,
+      "day_of_week": 4,
+      "sets": 3,
+      "reps": 12,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 3
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 39,
+    "fields": {
+      "plan": 2,
+      "exercise": 25,
+      "day_of_week": 4,
+      "sets": 3,
+      "reps": 12,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 4
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 40,
+    "fields": {
+      "plan": 2,
+      "exercise": 21,
+      "day_of_week": 4,
+      "sets": 3,
+      "reps": 15,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 5
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 41,
+    "fields": {
+      "plan": 2,
+      "exercise": 11,
+      "day_of_week": 5,
+      "sets": 5,
+      "reps": 5,
+      "target_weight": null,
+      "rest_seconds": 180,
+      "notes": "Día LEGS — Sábado (fuerza)",
+      "order": 1
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 42,
+    "fields": {
+      "plan": 2,
+      "exercise": 15,
+      "day_of_week": 5,
+      "sets": 3,
+      "reps": 12,
+      "target_weight": null,
+      "rest_seconds": 90,
+      "notes": "",
+      "order": 2
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 43,
+    "fields": {
+      "plan": 2,
+      "exercise": 14,
+      "day_of_week": 5,
+      "sets": 3,
+      "reps": 12,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 3
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 44,
+    "fields": {
+      "plan": 2,
+      "exercise": 41,
+      "day_of_week": 5,
+      "sets": 3,
+      "reps": 10,
+      "target_weight": null,
+      "rest_seconds": 90,
+      "notes": "",
+      "order": 4
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 45,
+    "fields": {
+      "plan": 2,
+      "exercise": 17,
+      "day_of_week": 5,
+      "sets": 4,
+      "reps": 20,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 5
+    }
+  },
+  {
+    "model": "plans.trainingplan",
+    "pk": 3,
+    "fields": {
+      "name": "Cardio + Tonificación",
+      "description": "Plan de 4 días que combina sesiones de cardio con ejercicios de tonificación muscular. Ideal para quemar grasa manteniendo el músculo.",
+      "plan_type": "weekly",
+      "visibility": "general",
+      "assigned_to": null,
+      "created_by": null,
+      "start_date": null,
+      "end_date": null,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 46,
+    "fields": {
+      "plan": 3,
+      "exercise": 35,
+      "day_of_week": 0,
+      "sets": 1,
+      "reps": 30,
+      "target_weight": null,
+      "rest_seconds": 0,
+      "notes": "Lunes: 30 min carrera a ritmo moderado",
+      "order": 1
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 47,
+    "fields": {
+      "plan": 3,
+      "exercise": 31,
+      "day_of_week": 0,
+      "sets": 3,
+      "reps": 45,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "Segundos de plancha",
+      "order": 2
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 48,
+    "fields": {
+      "plan": 3,
+      "exercise": 34,
+      "day_of_week": 0,
+      "sets": 3,
+      "reps": 15,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 3
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 49,
+    "fields": {
+      "plan": 3,
+      "exercise": 32,
+      "day_of_week": 0,
+      "sets": 3,
+      "reps": 20,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 4
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 50,
+    "fields": {
+      "plan": 3,
+      "exercise": 45,
+      "day_of_week": 1,
+      "sets": 4,
+      "reps": 12,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "Martes: tonificación tren superior",
+      "order": 1
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 51,
+    "fields": {
+      "plan": 3,
+      "exercise": 3,
+      "day_of_week": 1,
+      "sets": 3,
+      "reps": 15,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 2
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 52,
+    "fields": {
+      "plan": 3,
+      "exercise": 9,
+      "day_of_week": 1,
+      "sets": 3,
+      "reps": 12,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 3
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 53,
+    "fields": {
+      "plan": 3,
+      "exercise": 19,
+      "day_of_week": 1,
+      "sets": 3,
+      "reps": 15,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 4
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 54,
+    "fields": {
+      "plan": 3,
+      "exercise": 24,
+      "day_of_week": 1,
+      "sets": 3,
+      "reps": 15,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 5
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 55,
+    "fields": {
+      "plan": 3,
+      "exercise": 36,
+      "day_of_week": 3,
+      "sets": 1,
+      "reps": 45,
+      "target_weight": null,
+      "rest_seconds": 0,
+      "notes": "Jueves: 45 min bicicleta estática (ritmo suave-moderado)",
+      "order": 1
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 56,
+    "fields": {
+      "plan": 3,
+      "exercise": 33,
+      "day_of_week": 3,
+      "sets": 3,
+      "reps": 10,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 2
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 57,
+    "fields": {
+      "plan": 3,
+      "exercise": 44,
+      "day_of_week": 4,
+      "sets": 3,
+      "reps": 12,
+      "target_weight": null,
+      "rest_seconds": 90,
+      "notes": "Viernes: tonificación tren inferior",
+      "order": 1
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 58,
+    "fields": {
+      "plan": 3,
+      "exercise": 15,
+      "day_of_week": 4,
+      "sets": 3,
+      "reps": 12,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 2
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 59,
+    "fields": {
+      "plan": 3,
+      "exercise": 16,
+      "day_of_week": 4,
+      "sets": 3,
+      "reps": 15,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 3
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 60,
+    "fields": {
+      "plan": 3,
+      "exercise": 17,
+      "day_of_week": 4,
+      "sets": 3,
+      "reps": 15,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 4
+    }
+  },
+  {
+    "model": "plans.trainingplan",
+    "pk": 4,
+    "fields": {
+      "name": "Principiante 3 días",
+      "description": "Plan básico para quienes empiezan en el gimnasio. 3 días de cuerpo completo con ejercicios sencillos, pesos bajos y descanso suficiente para aprender la técnica.",
+      "plan_type": "weekly",
+      "visibility": "general",
+      "assigned_to": null,
+      "created_by": null,
+      "start_date": null,
+      "end_date": null,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 61,
+    "fields": {
+      "plan": 4,
+      "exercise": 12,
+      "day_of_week": 0,
+      "sets": 3,
+      "reps": 10,
+      "target_weight": null,
+      "rest_seconds": 90,
+      "notes": "Lunes — empieza con peso ligero",
+      "order": 1
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 62,
+    "fields": {
+      "plan": 4,
+      "exercise": 45,
+      "day_of_week": 0,
+      "sets": 3,
+      "reps": 8,
+      "target_weight": null,
+      "rest_seconds": 90,
+      "notes": "",
+      "order": 2
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 63,
+    "fields": {
+      "plan": 4,
+      "exercise": 9,
+      "day_of_week": 0,
+      "sets": 3,
+      "reps": 10,
+      "target_weight": null,
+      "rest_seconds": 90,
+      "notes": "",
+      "order": 3
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 64,
+    "fields": {
+      "plan": 4,
+      "exercise": 40,
+      "day_of_week": 0,
+      "sets": 3,
+      "reps": 10,
+      "target_weight": null,
+      "rest_seconds": 90,
+      "notes": "",
+      "order": 4
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 65,
+    "fields": {
+      "plan": 4,
+      "exercise": 31,
+      "day_of_week": 0,
+      "sets": 3,
+      "reps": 20,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "20 segundos de plancha",
+      "order": 5
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 66,
+    "fields": {
+      "plan": 4,
+      "exercise": 12,
+      "day_of_week": 2,
+      "sets": 3,
+      "reps": 12,
+      "target_weight": null,
+      "rest_seconds": 90,
+      "notes": "Miércoles — aumenta 1-2 rep respecto al lunes",
+      "order": 1
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 67,
+    "fields": {
+      "plan": 4,
+      "exercise": 45,
+      "day_of_week": 2,
+      "sets": 3,
+      "reps": 10,
+      "target_weight": null,
+      "rest_seconds": 90,
+      "notes": "",
+      "order": 2
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 68,
+    "fields": {
+      "plan": 4,
+      "exercise": 8,
+      "day_of_week": 2,
+      "sets": 3,
+      "reps": 12,
+      "target_weight": null,
+      "rest_seconds": 90,
+      "notes": "",
+      "order": 3
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 69,
+    "fields": {
+      "plan": 4,
+      "exercise": 24,
+      "day_of_week": 2,
+      "sets": 3,
+      "reps": 12,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 4
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 70,
+    "fields": {
+      "plan": 4,
+      "exercise": 28,
+      "day_of_week": 2,
+      "sets": 3,
+      "reps": 12,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 5
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 71,
+    "fields": {
+      "plan": 4,
+      "exercise": 44,
+      "day_of_week": 4,
+      "sets": 3,
+      "reps": 10,
+      "target_weight": null,
+      "rest_seconds": 90,
+      "notes": "Viernes — ligero, buena técnica",
+      "order": 1
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 72,
+    "fields": {
+      "plan": 4,
+      "exercise": 45,
+      "day_of_week": 4,
+      "sets": 3,
+      "reps": 10,
+      "target_weight": null,
+      "rest_seconds": 90,
+      "notes": "",
+      "order": 2
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 73,
+    "fields": {
+      "plan": 4,
+      "exercise": 13,
+      "day_of_week": 4,
+      "sets": 3,
+      "reps": 12,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 3
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 74,
+    "fields": {
+      "plan": 4,
+      "exercise": 19,
+      "day_of_week": 4,
+      "sets": 3,
+      "reps": 12,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 4
+    }
+  },
+  {
+    "model": "plans.planexercise",
+    "pk": 75,
+    "fields": {
+      "plan": 4,
+      "exercise": 32,
+      "day_of_week": 4,
+      "sets": 3,
+      "reps": 15,
+      "target_weight": null,
+      "rest_seconds": 60,
+      "notes": "",
+      "order": 5
+    }
+  }
+]

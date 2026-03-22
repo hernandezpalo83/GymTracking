@@ -32,10 +32,19 @@ class Exercise(models.Model):
         ('cardio', 'Cardio'),
         ('flexibility', 'Flexibilidad'),
     ]
+    EQUIPMENT_CHOICES = [
+        ('machine', 'Máquina'),
+        ('pulley', 'Polea'),
+        ('weights', 'Pesas libres'),
+        ('home', 'En casa / Sin material'),
+        ('bodyweight', 'Peso corporal'),
+        ('cardio_machine', 'Máquina cardio'),
+    ]
     name = models.CharField(max_length=100, verbose_name='Nombre')
     description = models.TextField(blank=True, verbose_name='Descripción')
     muscle_groups = models.ManyToManyField(MuscleGroup, related_name='exercises', verbose_name='Grupos musculares')
     exercise_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='strength', verbose_name='Tipo')
+    equipment = models.CharField(max_length=20, choices=EQUIPMENT_CHOICES, blank=True, verbose_name='Material/Equipo')
     image = models.ImageField(upload_to='exercises/', blank=True, null=True, verbose_name='Imagen')
     created_by = models.ForeignKey(
         'users.User', on_delete=models.SET_NULL,
