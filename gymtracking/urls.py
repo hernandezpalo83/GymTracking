@@ -13,6 +13,7 @@ urlpatterns = [
     path('plans/', include('plans.urls', namespace='plans')),
     path('sessions/', include('sessions.urls', namespace='sessions')),
     path('admin-config/', include('config.urls', namespace='config')),
+    path('health/', include('health.urls', namespace='health')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

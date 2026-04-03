@@ -145,22 +145,86 @@
   {% endfor %}
 
   <!-- Actions -->
-  <div class="flex gap-3 pb-4">
-    <a href="{% url 'sessions:log' session.pk %}"
-       class="flex-1 inline-flex items-center justify-center gap-2 font-semibold rounded-xl bg-primary-600 text-white px-4 py-3 text-sm hover:bg-primary-700 transition-colors">
-      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
-      </svg>
-      Continuar sesión
-    </a>
-    <a href="{% url 'sessions:edit' session.pk %}"
-       class="inline-flex items-center justify-center gap-2 font-medium rounded-xl bg-gray-100 text-gray-700 px-4 py-3 text-sm hover:bg-gray-200 transition-colors">
-      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
-      </svg>
-      Editar
-    </a>
+  <div class="space-y-3 pb-4">
+    <div class="flex gap-3">
+      <a href="{% url 'sessions:log' session.pk %}"
+         class="flex-1 inline-flex items-center justify-center gap-2 font-semibold rounded-xl bg-primary-600 text-white px-4 py-3 text-sm hover:bg-primary-700 transition-colors">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+        </svg>
+        Continuar sesión
+      </a>
+      <a href="{% url 'sessions:edit' session.pk %}"
+         class="inline-flex items-center justify-center gap-2 font-medium rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-3 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
+        </svg>
+        Editar
+      </a>
+    </div>
+
+    <!-- Repeat workout -->
+    {% if session_exercises %}
+    <form method="post" action="{% url 'sessions:repeat' session.pk %}">
+      {% csrf_token %}
+      <button type="submit"
+              class="w-full inline-flex items-center justify-center gap-2 font-semibold rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 px-4 py-3 text-sm hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors active:scale-[0.99]">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/>
+        </svg>
+        Repetir entrenamiento
+      </button>
+    </form>
+    {% endif %}
+
+    <!-- Google Fit manual sync (shown only when connected) -->
+    <div id="fitSyncContainer" class="hidden">
+      <button onclick="syncToGoogleFit({{ session.pk }}, this)"
+              class="w-full inline-flex items-center justify-center gap-2 font-medium rounded-xl bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 px-4 py-2.5 text-sm hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/>
+        </svg>
+        Sincronizar con Google Fit
+      </button>
+    </div>
   </div>
 </div>
 {% endblock %}
 
+{% block extra_js %}
+<script>
+// Show Google Fit sync button — silently hide it if user is not connected
+(function() {
+  const container = document.getElementById('fitSyncContainer');
+  if (container) container.classList.remove('hidden');
+})();
+
+function syncToGoogleFit(sessionPk, btn) {
+  btn.disabled = true;
+  btn.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg> Sincronizando…';
+  fetch(`/health/sync/${sessionPk}/`, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': getCookie('csrftoken') },
+  })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        btn.innerHTML = '✓ Sincronizado con Google Fit';
+        btn.classList.add('text-green-600', 'dark:text-green-400');
+      } else if (data.error && data.error.includes('conectada')) {
+        // Not connected — hide the button
+        document.getElementById('fitSyncContainer').classList.add('hidden');
+      } else {
+        btn.innerHTML = 'Error al sincronizar';
+        btn.disabled = false;
+      }
+    })
+    .catch(() => { btn.innerHTML = 'Error al sincronizar'; btn.disabled = false; });
+}
+
+function getCookie(name) {
+  const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+  return v ? v[2] : null;
+}
+</script>
+{% endblock %}

@@ -1,0 +1,304 @@
+{% extends 'base.html' %}
+
+{% block title %}Panel de Progreso{% endblock %}
+{% block meta_description %}Ganancias de fuerza, tendencias de volumen y récords personales.{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block page_header %}
+<div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Panel de Progreso</h1>
+    <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Ganancias de fuerza, volumen semanal y récords personales</p>
+  </div>
+
+  <!-- Period filter -->
+  <div class="flex items-center gap-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-1 shadow-sm">
+    {% for key, label in range_labels.items %}
+    <a href="?range={{ key }}{% if exercise_id %}&exercise={{ exercise_id }}{% endif %}"
+       class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors
+              {% if range_param == key %}bg-indigo-600 text-white shadow-sm{% else %}text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700{% endif %}">
+      {{ label }}
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  SECTION 1 — Strength Gains                               -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+    <div class="px-5 py-4 border-b border-gray-50 dark:border-gray-700 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/40 rounded-lg flex items-center justify-center">
+          <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"/>
+          </svg>
+        </div>
+        <h2 class="font-semibold text-gray-900 dark:text-white">Ganancias de Fuerza</h2>
+      </div>
+      <!-- Exercise picker -->
+      <form method="get" class="flex items-center gap-2">
+        <input type="hidden" name="range" value="{{ range_param }}">
+        <select name="exercise"
+                onchange="this.form.submit()"
+                class="rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 max-w-[220px]">
+          <option value="">Seleccionar ejercicio…</option>
+          {% for ex in exercises_with_data %}
+          <option value="{{ ex.pk }}" {% if selected_exercise and selected_exercise.pk == ex.pk %}selected{% endif %}>
+            {{ ex.name }}
+          </option>
+          {% endfor %}
+        </select>
+        {% if selected_exercise %}
+        <a href="?range={{ range_param }}"
+           class="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+           title="Limpiar selección">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </a>
+        {% endif %}
+      </form>
+    </div>
+
+    <div class="p-5">
+      {% if selected_exercise and strength_labels_json != '[]' %}
+        <div class="relative h-64">
+          <canvas id="strengthChart"></canvas>
+        </div>
+        <!-- Mini stats under chart -->
+        <div class="grid grid-cols-2 gap-3 mt-4">
+          <div class="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl text-center">
+            <p class="text-xl font-bold text-indigo-700 dark:text-indigo-300" id="strengthMaxVal">—</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Peso máximo (kg)</p>
+          </div>
+          <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-xl text-center">
+            <p class="text-xl font-bold text-green-700 dark:text-green-300" id="strengthSessions">—</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Sesiones con datos</p>
+          </div>
+        </div>
+      {% elif selected_exercise %}
+        <div class="py-12 text-center text-gray-400 dark:text-gray-500">
+          <svg class="w-10 h-10 mx-auto mb-3 opacity-40" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75z"/>
+          </svg>
+          <p class="text-sm">Sin datos para <strong>{{ selected_exercise.name }}</strong> en este período.</p>
+        </div>
+      {% else %}
+        <div class="py-12 text-center text-gray-400 dark:text-gray-500">
+          <svg class="w-10 h-10 mx-auto mb-3 opacity-40" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75z"/>
+          </svg>
+          <p class="text-sm">Selecciona un ejercicio para ver su evolución.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  SECTION 2 — Weekly Volume Trend                           -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+    <div class="px-5 py-4 border-b border-gray-50 dark:border-gray-700 flex items-center gap-2">
+      <div class="w-8 h-8 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center">
+        <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
+        </svg>
+      </div>
+      <div>
+        <h2 class="font-semibold text-gray-900 dark:text-white">Tendencias de Volumen</h2>
+        <p class="text-xs text-gray-400 dark:text-gray-500">Volumen total semanal (series × reps × peso)</p>
+      </div>
+    </div>
+    <div class="p-5">
+      {% if vol_labels_json != '[]' %}
+        <div class="relative h-56">
+          <canvas id="volumeChart"></canvas>
+        </div>
+      {% else %}
+        <div class="py-12 text-center text-gray-400 dark:text-gray-500">
+          <p class="text-sm">Sin datos de volumen para este período.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  SECTION 3 — Personal Records                             -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+    <div class="px-5 py-4 border-b border-gray-50 dark:border-gray-700 flex items-center gap-2">
+      <div class="w-8 h-8 bg-amber-100 dark:bg-amber-900/40 rounded-lg flex items-center justify-center">
+        <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0"/>
+        </svg>
+      </div>
+      <div>
+        <h2 class="font-semibold text-gray-900 dark:text-white">Récords Personales</h2>
+        <p class="text-xs text-gray-400 dark:text-gray-500">Mejor marca por ejercicio y tipo</p>
+      </div>
+    </div>
+
+    {% if personal_records %}
+    <div class="divide-y divide-gray-50 dark:divide-gray-700">
+      {% regroup personal_records by exercise as records_by_exercise %}
+      {% for group in records_by_exercise %}
+      <div class="px-5 py-4">
+        <p class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">{{ group.grouper.name }}</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {% for pr in group.list %}
+          <div class="p-3 bg-amber-50 dark:bg-amber-900/10 rounded-xl border border-amber-100 dark:border-amber-900/30">
+            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">{{ pr.get_record_type_display }}</p>
+            <p class="text-lg font-bold text-amber-700 dark:text-amber-300">
+              {{ pr.value|floatformat:1 }}
+              {% if pr.record_type == 'max_weight' or pr.record_type == 'max_volume' %}<span class="text-xs font-normal">kg</span>
+              {% elif pr.record_type == 'best_distance' %}<span class="text-xs font-normal">m</span>
+              {% endif %}
+            </p>
+            <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">{{ pr.achieved_at|date:"d/m/Y" }}</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="py-12 text-center text-gray-400 dark:text-gray-500">
+      <svg class="w-10 h-10 mx-auto mb-3 opacity-40" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497"/>
+      </svg>
+      <p class="text-sm">Aún no tienes récords personales registrados.</p>
+      <p class="text-xs mt-1">Se actualizan automáticamente al registrar sesiones.</p>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const isDark = document.documentElement.classList.contains('dark');
+const gridColor  = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+const labelColor = isDark ? '#94a3b8' : '#6b7280';
+
+Chart.defaults.font.family = 'Inter, system-ui, sans-serif';
+Chart.defaults.font.size = 11;
+
+// ── Strength gains chart ──────────────────────────────────────────
+{% if selected_exercise and strength_labels_json != '[]' %}
+const strengthLabels = {{ strength_labels_json }};
+const strengthMax    = {{ strength_max_weight_json }};
+const strengthVol    = {{ strength_volume_json }};
+
+// Populate mini-stats
+document.getElementById('strengthMaxVal').textContent =
+  Math.max(...strengthMax).toFixed(1) + ' kg';
+document.getElementById('strengthSessions').textContent = strengthLabels.length;
+
+new Chart(document.getElementById('strengthChart'), {
+  type: 'line',
+  data: {
+    labels: strengthLabels,
+    datasets: [
+      {
+        label: 'Peso máximo (kg)',
+        data: strengthMax,
+        borderColor: '#6366f1',
+        backgroundColor: 'rgba(99,102,241,0.08)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 4,
+        pointBackgroundColor: '#6366f1',
+        yAxisID: 'yLeft',
+      },
+      {
+        label: 'Volumen (kg)',
+        data: strengthVol,
+        borderColor: '#22c55e',
+        backgroundColor: 'transparent',
+        borderDash: [4, 3],
+        tension: 0.3,
+        pointRadius: 3,
+        pointBackgroundColor: '#22c55e',
+        yAxisID: 'yRight',
+      },
+    ],
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: {
+        labels: { color: labelColor, boxWidth: 12, padding: 16 },
+      },
+      tooltip: { bodySpacing: 4 },
+    },
+    scales: {
+      x: { ticks: { color: labelColor }, grid: { color: gridColor } },
+      yLeft: {
+        type: 'linear', position: 'left',
+        ticks: { color: '#6366f1' },
+        grid: { color: gridColor },
+        title: { display: true, text: 'kg (max)', color: '#6366f1' },
+      },
+      yRight: {
+        type: 'linear', position: 'right',
+        ticks: { color: '#22c55e' },
+        grid: { drawOnChartArea: false },
+        title: { display: true, text: 'Volumen (kg)', color: '#22c55e' },
+      },
+    },
+  },
+});
+{% endif %}
+
+// ── Weekly volume chart ───────────────────────────────────────────
+{% if vol_labels_json != '[]' %}
+const volLabels = {{ vol_labels_json }};
+const volValues = {{ vol_values_json }};
+
+new Chart(document.getElementById('volumeChart'), {
+  type: 'bar',
+  data: {
+    labels: volLabels,
+    datasets: [{
+      label: 'Volumen semanal (kg)',
+      data: volValues,
+      backgroundColor: 'rgba(99,102,241,0.7)',
+      borderRadius: 6,
+      borderSkipped: false,
+    }],
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx => ` ${ctx.parsed.y.toLocaleString('es-ES')} kg`,
+        },
+      },
+    },
+    scales: {
+      x: { ticks: { color: labelColor }, grid: { display: false } },
+      y: {
+        ticks: { color: labelColor },
+        grid: { color: gridColor },
+        title: { display: true, text: 'kg', color: labelColor },
+      },
+    },
+  },
+});
+{% endif %}
+</script>
+{% endblock %}
