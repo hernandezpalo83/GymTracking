@@ -35,6 +35,7 @@ _base_apps = [
     'sessions',
     'reports',
     'config',
+    'health',
 ]
 
 # Add components_ui only if available
@@ -142,6 +143,16 @@ MESSAGE_TAGS = {
     messages.WARNING: 'warning',
     messages.ERROR: 'error',
 }
+
+# Google Fit OAuth2 credentials (set in .env)
+# See: https://console.cloud.google.com/apis/credentials
+# Enable: Fitness API, OAuth consent screen, Web application credentials
+GOOGLE_FIT_CLIENT_ID = config('GOOGLE_FIT_CLIENT_ID', default='')
+GOOGLE_FIT_CLIENT_SECRET = config('GOOGLE_FIT_CLIENT_SECRET', default='')
+GOOGLE_FIT_REDIRECT_URI = config(
+    'GOOGLE_FIT_REDIRECT_URI',
+    default='http://localhost:8000/health/callback/'
+)
 
 # Security headers (active in production)
 if not DEBUG:

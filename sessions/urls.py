@@ -13,4 +13,5 @@ urlpatterns = [
     path('<int:session_pk>/add-exercise/', views.add_exercise_to_session, name='add_exercise'),
     path('set/<int:session_exercise_pk>/log/', views.log_set, name='log_set'),
     path('set/<int:set_pk>/delete/', views.delete_set, name='delete_set'),
+    path('<int:pk>/repeat/', views.repeat_session, name='repeat'),
 ]

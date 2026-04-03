@@ -14,4 +14,5 @@ urlpatterns = [
     path('musculos/', views.muscle_groups_view, name='muscle_groups'),
     path('supervision/', views.supervision_view, name='supervision'),
     path('actividad/', views.user_activity_view, name='user_activity'),
+    path('progreso/', views.progress_panel_view, name='progress_panel'),
 ]

@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+
+{% block title %}Integración de Salud{% endblock %}
+{% block meta_description %}Conecta GymTracking con Google Fit para sincronizar tus entrenamientos y pasos.{% endblock %}
+
+{% block page_header %}
+<div class="mb-6">
+  <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Integración de Salud</h1>
+  <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">
+    Conecta tu cuenta de salud para sincronizar entrenamientos y leer tus pasos diarios.
+  </p>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-5">
+
+  <!-- Google Fit card -->
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+    <div class="flex items-center gap-4 p-5 border-b border-gray-50 dark:border-gray-700">
+      <!-- Google Fit logo placeholder -->
+      <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-400 to-green-400 flex items-center justify-center flex-shrink-0">
+        <svg class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
+        </svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <h2 class="font-semibold text-gray-900 dark:text-white">Google Fit</h2>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+          Sincroniza tus entrenamientos y lee el conteo de pasos diarios desde Google Fit.
+        </p>
+      </div>
+      {% if connection and connection.provider == 'google_fit' %}
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 text-xs font-medium">
+        <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+        Conectado
+      </span>
+      {% else %}
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-xs font-medium">
+        No conectado
+      </span>
+      {% endif %}
+    </div>
+
+    <div class="p-5 space-y-4">
+      {% if connection and connection.provider == 'google_fit' %}
+        <!-- Connected state -->
+        {% if today_steps is not None %}
+        <div class="flex items-center gap-3 p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl">
+          <div class="w-9 h-9 bg-indigo-100 dark:bg-indigo-900/40 rounded-xl flex items-center justify-center">
+            <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/>
+            </svg>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Pasos hoy</p>
+            <p class="text-xl font-bold text-gray-900 dark:text-white">{{ today_steps|default:"0"|floatformat:0 }}</p>
+          </div>
+          <button
+            onclick="refreshSteps(this)"
+            class="ml-auto p-2 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors"
+            title="Actualizar pasos">
+            <svg class="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/>
+            </svg>
+          </button>
+        </div>
+        {% else %}
+        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl text-sm text-gray-500 dark:text-gray-400">
+          Los pasos se actualizarán al volver al inicio. También puedes
+          <button onclick="refreshSteps(this)" class="text-indigo-600 dark:text-indigo-400 hover:underline font-medium">actualizar ahora</button>.
+        </div>
+        {% endif %}
+
+        <div class="text-sm text-gray-500 dark:text-gray-400 space-y-1.5">
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+            </svg>
+            Las sesiones completadas se sincronizan automáticamente.
+          </div>
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+            </svg>
+            Calorías y duración enviadas a Google Fit.
+          </div>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+          <a href="{% url 'health:connect_google_fit' %}"
+             class="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline">
+            Reconectar cuenta
+          </a>
+          <form method="post" action="{% url 'health:disconnect' %}" class="ml-auto"
+                onsubmit="return confirm('¿Desconectar Google Fit? Los datos ya sincronizados no se borrarán.')">
+            {% csrf_token %}
+            <button type="submit"
+                    class="text-sm font-medium text-red-600 dark:text-red-400 hover:underline">
+              Desconectar
+            </button>
+          </form>
+        </div>
+
+      {% elif google_fit_configured %}
+        <!-- Not connected, credentials available -->
+        <p class="text-sm text-gray-600 dark:text-gray-300">
+          Conecta tu cuenta de Google para sincronizar automáticamente tus entrenamientos
+          (calorías quemadas y duración) y ver tus pasos diarios en el panel principal.
+        </p>
+        <a href="{% url 'health:connect_google_fit' %}"
+           class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"/>
+          </svg>
+          Conectar con Google Fit
+        </a>
+      {% else %}
+        <!-- Not configured -->
+        <div class="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800 text-sm text-amber-700 dark:text-amber-300">
+          <p class="font-semibold mb-1">Integración no configurada</p>
+          <p>Google Fit requiere credenciales OAuth2. Un administrador debe añadir
+             <code class="bg-amber-100 dark:bg-amber-900/40 px-1 rounded">GOOGLE_FIT_CLIENT_ID</code> y
+             <code class="bg-amber-100 dark:bg-amber-900/40 px-1 rounded">GOOGLE_FIT_CLIENT_SECRET</code>
+             al archivo <code class="bg-amber-100 dark:bg-amber-900/40 px-1 rounded">.env</code>.
+          </p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Apple Health notice -->
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden opacity-60">
+    <div class="flex items-center gap-4 p-5">
+      <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-red-400 to-pink-500 flex items-center justify-center flex-shrink-0">
+        <svg class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
+        </svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 mb-0.5">
+          <h2 class="font-semibold text-gray-900 dark:text-white">Apple Health (HealthKit)</h2>
+          <span class="px-2 py-0.5 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-xs font-medium">Próximamente</span>
+        </div>
+        <p class="text-xs text-gray-500 dark:text-gray-400">
+          HealthKit requiere una app nativa iOS. Disponible cuando se lance la app móvil de GymTracking.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sync history -->
+  {% if recent_logs %}
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+    <div class="px-5 py-4 border-b border-gray-50 dark:border-gray-700">
+      <h3 class="font-semibold text-gray-900 dark:text-white text-sm">Historial de sincronización</h3>
+    </div>
+    <div class="divide-y divide-gray-50 dark:divide-gray-700">
+      {% for log in recent_logs %}
+      <div class="flex items-center gap-3 px-5 py-3">
+        {% if log.status == 'success' %}
+        <div class="w-7 h-7 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center flex-shrink-0">
+          <svg class="w-3.5 h-3.5 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+          </svg>
+        </div>
+        {% elif log.status == 'error' %}
+        <div class="w-7 h-7 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center flex-shrink-0">
+          <svg class="w-3.5 h-3.5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </div>
+        {% else %}
+        <div class="w-7 h-7 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
+          <svg class="w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
+          </svg>
+        </div>
+        {% endif %}
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-gray-800 dark:text-gray-200">
+            {{ log.get_sync_type_display }}
+            {% if log.session %}<span class="text-gray-400 font-normal">· {{ log.session.date|date:"d/m/Y" }}</span>{% endif %}
+          </p>
+          {% if log.error_message %}
+          <p class="text-xs text-red-500 truncate">{{ log.error_message }}</p>
+          {% endif %}
+        </div>
+        <span class="text-xs text-gray-400 flex-shrink-0">{{ log.created_at|date:"d/m H:i" }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function refreshSteps(btn) {
+  btn.disabled = true;
+  fetch("{% url 'health:refresh_steps' %}")
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        location.reload();
+      } else {
+        alert('Error al actualizar pasos: ' + data.error);
+        btn.disabled = false;
+      }
+    })
+    .catch(() => { btn.disabled = false; });
+}
+</script>
+{% endblock %}
