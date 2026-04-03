@@ -13,7 +13,7 @@ from django.views.generic import TemplateView
 
 from exercises.models import Exercise, MuscleGroup
 from plans.models import TrainingPlan
-from sessions.models import WorkoutSession, ExerciseSet, SessionExercise
+from sessions.models import WorkoutSession, ExerciseSet, SessionExercise, PersonalRecord
 from users.models import User
 
 from .utils import (
@@ -167,6 +167,19 @@ def dashboard_view(request):
             'count': count,
         })
 
+    # Daily steps from Google Fit (if connected)
+    today_steps = None
+    health_connected = False
+    try:
+        from health.models import DailySteps, HealthConnection
+        HealthConnection.objects.get(user=user)
+        health_connected = True
+        ds = DailySteps.objects.filter(user=user, date=today).first()
+        if ds:
+            today_steps = ds.steps
+    except Exception:
+        pass
+
     context = {
         'sessions_this_week': sessions_this_week,
         'sessions_this_month': sessions_this_month,
@@ -177,6 +190,8 @@ def dashboard_view(request):
         'volume_this_week': round(volume_this_week, 1),
         'athletes_data': athletes_data,
         'weeks_data': weeks_data,
+        'today_steps': today_steps,
+        'health_connected': health_connected,
     }
     return render(request, 'reports/dashboard.html', context)
 
@@ -1024,3 +1039,142 @@ def export_report_pdf(request):
         return response
 
     return redirect('reports:reports_list')
+
+
+# ---------------------------------------------------------------------------
+# Progress Panel
+# ---------------------------------------------------------------------------
+
+@login_required
+def progress_panel_view(request):
+    """Dedicated progress panel with strength gains, volume trends and PRs.
+
+    Sections:
+      1. Strength gains — max weight per date for a selected exercise (Chart.js line)
+      2. Weekly volume   — total kg lifted per week across all exercises (Chart.js bar)
+      3. Personal records — table of all PRs for the user
+    """
+    user = request.user
+    today = date.today()
+
+    # Period filter shared by sections 1 & 2
+    range_param = request.GET.get('range', '3m')
+    if range_param == 'week':
+        date_from = today - timedelta(days=today.weekday())
+    elif range_param == 'month':
+        date_from = today.replace(day=1)
+    elif range_param == 'all':
+        date_from = today - timedelta(days=3650)
+    else:  # default: 3m
+        range_param = '3m'
+        date_from = today - timedelta(days=90)
+    date_to = today
+
+    # ── Section 1: Strength gains (per exercise) ────────────────────────────
+    exercise_id = request.GET.get('exercise')
+    selected_exercise = None
+    strength_labels = []
+    strength_max_weight = []
+    strength_volume = []
+
+    # Dropdown: exercises this user has actually logged
+    exercises_with_data = (
+        Exercise.objects
+        .filter(
+            session_exercises__session__user=user,
+            exercise_type='strength',
+        )
+        .distinct()
+        .order_by('name')
+    )
+
+    if exercise_id:
+        selected_exercise = get_object_or_404(Exercise, pk=exercise_id)
+        sets_qs = ExerciseSet.objects.filter(
+            session_exercise__exercise=selected_exercise,
+            session_exercise__session__user=user,
+            session_exercise__session__date__gte=date_from,
+            session_exercise__session__date__lte=date_to,
+            completed=True,
+            weight__isnull=False,
+        ).select_related('session_exercise__session').order_by('session_exercise__session__date')
+
+        date_maxweight = defaultdict(float)
+        date_volume = defaultdict(float)
+        for s in sets_qs:
+            d = s.session_exercise.session.date.strftime('%d/%m/%y')
+            w = float(s.weight)
+            if w > date_maxweight[d]:
+                date_maxweight[d] = w
+            if s.reps:
+                date_volume[d] += w * s.reps
+
+        for d in sorted(date_maxweight.keys()):
+            strength_labels.append(d)
+            strength_max_weight.append(date_maxweight[d])
+            strength_volume.append(round(date_volume[d], 1))
+
+    # ── Section 2: Weekly volume trend ──────────────────────────────────────
+    all_sets = ExerciseSet.objects.filter(
+        session_exercise__session__user=user,
+        session_exercise__session__date__gte=date_from,
+        session_exercise__session__date__lte=date_to,
+        completed=True,
+        weight__isnull=False,
+        reps__isnull=False,
+    ).select_related('session_exercise__session')
+
+    week_volume: dict = defaultdict(float)
+    for s in all_sets:
+        # Normalise to the Monday of each week
+        d = s.session_exercise.session.date
+        week_monday = d - timedelta(days=d.weekday())
+        week_volume[week_monday] += float(s.weight) * s.reps
+
+    # Build a continuous weekly series covering the period
+    vol_labels = []
+    vol_values = []
+    if week_volume:
+        first_week = min(week_volume.keys())
+        last_week = max(week_volume.keys())
+        cur = first_week
+        while cur <= last_week:
+            vol_labels.append(cur.strftime('%d/%m'))
+            vol_values.append(round(week_volume.get(cur, 0), 1))
+            cur += timedelta(weeks=1)
+
+    # ── Section 3: Personal records ─────────────────────────────────────────
+    personal_records = (
+        PersonalRecord.objects
+        .filter(user=user)
+        .select_related('exercise')
+        .order_by('exercise__name', 'record_type')
+    )
+
+    RANGE_LABELS = {
+        'week': 'Esta semana',
+        'month': 'Este mes',
+        '3m': 'Últimos 3 meses',
+        'all': 'Todo el tiempo',
+    }
+
+    context = {
+        # Filters
+        'range_param': range_param,
+        'range_labels': RANGE_LABELS,
+        'date_from': date_from.isoformat(),
+        'date_to': date_to.isoformat(),
+        # Section 1
+        'exercises_with_data': exercises_with_data,
+        'selected_exercise': selected_exercise,
+        'exercise_id': exercise_id or '',
+        'strength_labels_json': json.dumps(strength_labels),
+        'strength_max_weight_json': json.dumps(strength_max_weight),
+        'strength_volume_json': json.dumps(strength_volume),
+        # Section 2
+        'vol_labels_json': json.dumps(vol_labels),
+        'vol_values_json': json.dumps(vol_values),
+        # Section 3
+        'personal_records': personal_records,
+    }
+    return render(request, 'reports/progress_panel.html', context)

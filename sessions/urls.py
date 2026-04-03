@@ -15,4 +15,5 @@ urlpatterns = [
     path('set/<int:set_pk>/delete/', views.delete_set, name='delete_set'),
     path('exercises/search/', views.search_exercises, name='search_exercises'),
     path('<int:session_pk>/finish-exercise/<int:exercise_pk>/', views.finish_exercise, name='finish_exercise'),
+    path('<int:pk>/repeat/', views.repeat_session, name='repeat'),
 ]

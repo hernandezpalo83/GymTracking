@@ -24,4 +24,5 @@ urlpatterns = [
     path('informes/consistencia/', views.report_consistency, name='report_consistency'),
     path('informes/rendimiento/', views.report_performance, name='report_performance'),
     path('informes/export-pdf/', views.export_report_pdf, name='export_pdf'),
+    path('progreso/', views.progress_panel_view, name='progress_panel'),
 ]
