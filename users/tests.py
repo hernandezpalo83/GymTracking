@@ -78,6 +78,11 @@ class LoginViewTest(TestCase):
 class RegisterViewTest(TestCase):
     def setUp(self):
         self.client = Client()
+        # Enable registration for tests
+        from config.models import SiteSettings
+        settings = SiteSettings.get()
+        settings.registration_enabled = True
+        settings.save()
 
     def test_register_page_loads(self):
         r = self.client.get(reverse('users:register'))

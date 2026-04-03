@@ -520,32 +520,23 @@
     const csrf = document.getElementById('csrf-token').value;
     const sessionPk = {{ session.pk }};
 
-    const formData = new FormData();
-    formData.append('exercise', exerciseId);
-
     fetch(`/sessions/${sessionPk}/add-exercise/`, {
       method: 'POST',
       headers: { 'X-CSRFToken': csrf, 'X-Requested-With': 'XMLHttpRequest' },
-      body: formData
+      body: new FormData(Object.assign(document.createElement('form'), {
+        elements: {
+          exercise: { value: exerciseId }
+        }
+      }))
     })
     .then(r => r.json())
     .then(data => {
       if (data.success) {
         closeAddSheet();
-        showSuccess('Ejercicio agregado. Finaliza el actual para comenzar el nuevo.');
-        // Recargar para mostrar el nuevo ejercicio, pero sin cambiar el actual
-        setTimeout(() => {
-          location.reload();
-        }, 1500);
-      } else {
-        showError('Error al agregar ejercicio');
-        console.error('Errors:', data.errors);
+        location.reload(); // Reload to show new exercise
       }
     })
-    .catch(err => {
-      showError('Error al agregar ejercicio');
-      console.error('Error adding exercise:', err);
-    });
+    .catch(err => console.error('Error adding exercise:', err));
   }
 
   function finishExercise(sessionPk, sessionExercisePk) {

@@ -101,8 +101,7 @@ def session_log_view(request, pk):
     """Mobile-optimized session logging view."""
     import json as _json
     session = get_object_or_404(WorkoutSession, pk=pk, user=request.user)
-    # Ordenar por: ejercicios sin series completadas primero (activos), luego los completados
-    session_exercises = session.session_exercises.select_related('exercise').prefetch_related('sets').order_by('sets_completed', 'pk')
+    session_exercises = session.session_exercises.select_related('exercise').prefetch_related('sets').all()
 
     # Get plan exercises for today if plan is linked
     plan_exercises = []

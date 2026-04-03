@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Mis Informes{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">📊 Mis Informes</h1>
+        <p class="text-gray-600 dark:text-gray-400">Selecciona un informe para ver tus estadísticas de entrenamiento</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Informe 1: Progreso Personal -->
+        <a href="{% url 'reports:report_progress' %}" class="group">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-xl transition-shadow p-6 border border-gray-100 dark:border-gray-700">
+                <div class="text-4xl mb-3">📈</div>
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 transition">Progreso Personal</h2>
+                <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">Ver tu evolución general en volumen, calorías y más</p>
+                <div class="mt-4 text-sm text-blue-600 font-semibold">Ver informe →</div>
+            </div>
+        </a>
+
+        <!-- Informe 2: Por Ejercicio -->
+        <a href="{% url 'reports:report_exercise' %}" class="group">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-xl transition-shadow p-6 border border-gray-100 dark:border-gray-700">
+                <div class="text-4xl mb-3">💪</div>
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white group-hover:text-green-600 transition">Por Ejercicio</h2>
+                <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">Detalles y progreso de cada ejercicio específico</p>
+                <div class="mt-4 text-sm text-green-600 font-semibold">Ver informe →</div>
+            </div>
+        </a>
+
+        <!-- Informe 3: Por Tipo -->
+        <a href="{% url 'reports:report_type' %}" class="group">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-xl transition-shadow p-6 border border-gray-100 dark:border-gray-700">
+                <div class="text-4xl mb-3">⚡</div>
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white group-hover:text-yellow-600 transition">Por Tipo de Ejercicio</h2>
+                <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">Analiza fuerza, cardio y flexibilidad</p>
+                <div class="mt-4 text-sm text-yellow-600 font-semibold">Ver informe →</div>
+            </div>
+        </a>
+
+        <!-- Informe 4: Por Grupo Muscular -->
+        <a href="{% url 'reports:report_muscle' %}" class="group">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-xl transition-shadow p-6 border border-gray-100 dark:border-gray-700">
+                <div class="text-4xl mb-3">🦵</div>
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white group-hover:text-purple-600 transition">Por Grupo Muscular</h2>
+                <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">Verifica el balance de tu entrenamiento</p>
+                <div class="mt-4 text-sm text-purple-600 font-semibold">Ver informe →</div>
+            </div>
+        </a>
+
+        <!-- Informe 5: Consistencia -->
+        <a href="{% url 'reports:report_consistency' %}" class="group">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-xl transition-shadow p-6 border border-gray-100 dark:border-gray-700">
+                <div class="text-4xl mb-3">📅</div>
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white group-hover:text-cyan-600 transition">Consistencia</h2>
+                <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">¿Eres consistente? Analiza tu racha</p>
+                <div class="mt-4 text-sm text-cyan-600 font-semibold">Ver informe →</div>
+            </div>
+        </a>
+
+        <!-- Informe 6: Rendimiento -->
+        <a href="{% url 'reports:report_performance' %}" class="group">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-xl transition-shadow p-6 border border-gray-100 dark:border-gray-700">
+                <div class="text-4xl mb-3">🔥</div>
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white group-hover:text-red-600 transition">Mi Rendimiento</h2>
+                <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">Score general de performance (0-100)</p>
+                <div class="mt-4 text-sm text-red-600 font-semibold">Ver informe →</div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Información adicional -->
+    <div class="mt-12 bg-blue-50 dark:bg-blue-900/20 rounded-2xl p-6 border border-blue-200 dark:border-blue-800">
+        <h3 class="font-bold text-lg text-blue-900 dark:text-blue-300 mb-3">💡 Consejo</h3>
+        <ul class="text-blue-800 dark:text-blue-200 text-sm space-y-2">
+            <li>✓ Cada informe incluye filtros por período y otros parámetros</li>
+            <li>✓ Puedes descargar cualquier informe como PDF</li>
+            <li>✓ Los datos se actualizan automáticamente después de cada sesión</li>
+            <li>✓ Usa los informes para identificar tendencias y mejorar tu entrenamiento</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

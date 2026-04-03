@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Informe: Consistencia{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <a href="{% url 'reports:reports_list' %}" class="inline-flex items-center text-blue-600 hover:text-blue-800 mb-3">
+                ← Volver a informes
+            </a>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">📅 Consistencia</h1>
+        </div>
+        <form method="post" action="{% url 'reports:export_pdf' %}" class="inline">
+            {% csrf_token %}
+            <input type="hidden" name="report_type" value="consistency">
+            <input type="hidden" name="weeks" value="{{ request.GET.weeks|default:4 }}">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold">
+                ⬇️ Descargar PDF
+            </button>
+        </form>
+    </div>
+
+    <!-- Filtros -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 mb-6">
+        <form method="get" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Semanas a mostrar</label>
+                <input type="number" name="weeks" min="1" max="52" value="{{ request.GET.weeks|default:4 }}" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg">
+            </div>
+
+            <div class="flex items-end">
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold">
+                    Aplicar Filtros
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Métricas Principales -->
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 text-center">
+            <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">Racha Actual</p>
+            <p class="text-3xl font-bold text-green-600">{{ data.current_streak }} días</p>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 text-center">
+            <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">Racha Máxima</p>
+            <p class="text-3xl font-bold text-blue-600">{{ data.max_streak }} días</p>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 text-center">
+            <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">Score</p>
+            <p class="text-3xl font-bold text-purple-600">{{ data.consistency_score|floatformat:0 }}/100</p>
+        </div>
+    </div>
+
+    <!-- Mapa de Calor (Heatmap) -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 mb-6">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Tu Actividad (Últimos 30 días)</h2>
+        <div id="consistencyHeatmap"></div>
+    </div>
+
+    <!-- Estadísticas Adicionales -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">📊 Estadísticas</h3>
+            <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <p class="text-gray-600 dark:text-gray-400">Sesiones este período</p>
+                    <p class="font-bold text-gray-900 dark:text-white">{{ data.sessions_count }}</p>
+                </div>
+                <div class="flex justify-between items-center">
+                    <p class="text-gray-600 dark:text-gray-400">Promedio semanal</p>
+                    <p class="font-bold text-gray-900 dark:text-white">{{ data.avg_per_week|floatformat:1 }}</p>
+                </div>
+                <div class="flex justify-between items-center">
+                    <p class="text-gray-600 dark:text-gray-400">Tasa de asistencia</p>
+                    <p class="font-bold text-gray-900 dark:text-white">{{ data.attendance_rate|floatformat:1 }}%</p>
+                </div>
+                <div class="flex justify-between items-center">
+                    <p class="text-gray-600 dark:text-gray-400">Mejor día</p>
+                    <p class="font-bold text-gray-900 dark:text-white">{{ data.best_day }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-6 border border-green-200 dark:border-green-800">
+            <h3 class="text-lg font-bold text-green-900 dark:text-green-300 mb-4">✨ Consejos</h3>
+            <ul class="text-green-800 dark:text-green-200 text-sm space-y-2">
+                {% if data.current_streak < 7 %}
+                <li>🎯 Intenta alcanzar una racha de 7 días consecutivos</li>
+                {% elif data.current_streak >= 30 %}
+                <li>🏆 ¡Excelente! Llevas {{ data.current_streak }} días de racha</li>
+                {% endif %}
+
+                {% if data.avg_per_week < 3 %}
+                <li>💪 Aumenta a 3-4 sesiones por semana para mejores resultados</li>
+                {% endif %}
+
+                {% if data.best_day %}
+                <li>📅 {{ data.best_day }} es tu mejor día - usa esta motivación</li>
+                {% endif %}
+
+                <li>✓ Mantén la consistencia, es la clave del progreso a largo plazo</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Tabla de Sesiones Recientes -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700">
+        <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white">Últimas Sesiones</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 dark:bg-gray-700/50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Fecha</th>
+                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">Duración</th>
+                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">Ejercicios</th>
+                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">Estado</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                    {% for session in data.recent_sessions %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+                        <td class="px-6 py-4 text-gray-900 dark:text-white">{{ session.date|date:"d/m/Y" }}</td>
+                        <td class="px-6 py-4 text-center text-gray-900 dark:text-white">
+                            {{ session.get_duration_minutes }} min
+                        </td>
+                        <td class="px-6 py-4 text-center text-gray-900 dark:text-white">{{ session.session_exercises.count }}</td>
+                        <td class="px-6 py-4 text-center">
+                            <span class="inline-block px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 text-xs font-semibold">
+                                ✓ Completada
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                            No hay sesiones en este período
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dates = {{ data.heatmap_dates|safe }};
+        const values = {{ data.heatmap_values|safe }};
+        renderHeatmapChart('consistencyHeatmap', dates, values);
+    });
+</script>
+<script src="{% static 'reports/js/charts.js' %}"></script>
+{% endblock %}
