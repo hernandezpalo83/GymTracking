@@ -15,15 +15,6 @@
     <h1 class="text-xl font-bold text-gray-900 dark:text-white">Registrando sesión</h1>
     <p class="text-gray-500 dark:text-gray-400 text-sm">{{ session.date|date:"l, d M Y" }}</p>
   </div>
-  {% if not session.completed %}
-  <button onclick="openAddSheet()"
-          class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-sm font-semibold hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-colors active:scale-95 touch-target">
-    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
-    </svg>
-    Ejercicio
-  </button>
-  {% endif %}
 </div>
 {% endblock %}
 
@@ -48,28 +39,28 @@
   </div>
   {% endif %}
 
-  <!-- Exercise cards -->
+  <!-- Active Exercise -->
+  {% if active_exercise %}
   <div id="exercises-container" class="space-y-5">
-    {% for se in session_exercises %}
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden" id="exercise-{{ se.pk }}" data-exercise-id="{{ se.exercise.pk }}" data-exercise-type="{{ se.exercise.exercise_type }}">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-blue-200 dark:border-blue-700 overflow-hidden" id="exercise-{{ active_exercise.pk }}" data-exercise-id="{{ active_exercise.exercise.pk }}" data-exercise-type="{{ active_exercise.exercise.exercise_type }}"
 
-      <!-- Exercise header -->
-      <div class="flex items-center justify-between px-4 py-3.5 bg-gray-50 dark:bg-gray-700/60 border-b border-gray-100 dark:border-gray-600">
+      <!-- Exercise header (ACTIVE) -->
+      <div class="flex items-center justify-between px-4 py-3.5 bg-blue-50 dark:bg-blue-900/20 border-b border-blue-200 dark:border-blue-700">
         <div>
-          <h3 class="font-semibold text-gray-900 dark:text-white text-sm">{{ se.exercise.name }}</h3>
+          <h3 class="font-semibold text-gray-900 dark:text-white text-sm">{{ active_exercise.exercise.name }}</h3>
           <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-            {{ se.exercise.get_exercise_type_display }}
-            &middot; <span id="count-{{ se.pk }}">{{ se.sets_completed }}</span> serie{{ se.sets_completed|pluralize:"s" }}
+            {{ active_exercise.exercise.get_exercise_type_display }}
+            &middot; <span id="count-{{ active_exercise.pk }}">{{ active_exercise.sets_completed }}</span> serie{{ active_exercise.sets_completed|pluralize:"s" }}
           </p>
         </div>
         <span class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-sm font-bold flex items-center justify-center">
-          {{ se.sets_completed }}
+          {{ active_exercise.sets_completed }}
         </span>
       </div>
 
       <!-- Sets table header -->
-      <div class="px-4 py-2 bg-gray-50 dark:bg-gray-700/30 border-b border-gray-100 dark:border-gray-600">
-        {% if se.exercise.exercise_type == 'cardio' %}
+      <div class="px-4 py-2 bg-blue-50 dark:bg-blue-900/10 border-b border-blue-100 dark:border-blue-700/50">
+        {% if active_exercise.exercise.exercise_type == 'cardio' %}
         <div class="grid grid-cols-[2rem_1fr_1fr_2rem] gap-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide">
           <span>#</span><span class="text-center">Tiempo</span><span class="text-center">Distancia</span><span></span>
         </div>
@@ -81,8 +72,8 @@
       </div>
 
       <!-- Logged sets -->
-      <div id="sets-{{ se.pk }}" class="divide-y divide-gray-50 dark:divide-gray-700">
-        {% for s in se.sets.all %}
+      <div id="sets-{{ active_exercise.pk }}" class="divide-y divide-gray-50 dark:divide-gray-700">
+        {% for s in active_exercise.sets.all %}
         <div class="grid grid-cols-[2rem_1fr_1fr_2rem] gap-2 items-center px-4 py-3" id="set-row-{{ s.pk }}">
           <span class="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 text-xs font-bold flex items-center justify-center">{{ s.set_number }}</span>
           {% if s.reps is not None %}
@@ -105,18 +96,18 @@
       </div>
 
       <!-- Inline input row for next set -->
-      <div class="px-4 py-3 border-t border-dashed border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800" id="input-row-{{ se.pk }}">
-        {% if se.exercise.exercise_type == 'cardio' %}
+      <div class="px-4 py-3 border-t border-dashed border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800" id="input-row-{{ active_exercise.pk }}">
+        {% if active_exercise.exercise.exercise_type == 'cardio' %}
         <div class="grid grid-cols-[2rem_1fr_1fr_auto] gap-2 items-end mb-3">
           <span class="text-xs text-gray-400 dark:text-gray-500 font-semibold pt-5 text-center">+</span>
           <div>
             <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1 text-center">Tiempo (min)</label>
-            <input type="number" id="duration-{{ se.pk }}" value="0" min="0"
+            <input type="number" id="duration-{{ active_exercise.pk }}" value="0" min="0"
                    class="w-full text-center text-lg font-bold dark:bg-gray-700 dark:text-white border border-gray-200 dark:border-gray-600 rounded-xl py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
           </div>
           <div>
             <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1 text-center">Distancia (m)</label>
-            <input type="number" id="distance-{{ se.pk }}" value="0" min="0" step="100"
+            <input type="number" id="distance-{{ active_exercise.pk }}" value="0" min="0" step="100"
                    class="w-full text-center text-lg font-bold dark:bg-gray-700 dark:text-white border border-gray-200 dark:border-gray-600 rounded-xl py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
           </div>
           <div class="pb-0.5"></div>
@@ -127,54 +118,96 @@
           <div>
             <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1 text-center">Reps</label>
             <div class="flex items-center gap-1">
-              <button onclick="adjustValue('reps-{{ se.pk }}', -1)" type="button"
+              <button onclick="adjustValue('reps-{{ active_exercise.pk }}', -1)" type="button"
                       class="w-9 h-10 rounded-xl bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-200 font-bold text-lg flex items-center justify-center active:scale-95 transition-transform">−</button>
-              <input type="number" id="reps-{{ se.pk }}" value="10" min="0" max="999"
+              <input type="number" id="reps-{{ active_exercise.pk }}" value="10" min="0" max="999"
                      class="flex-1 text-center text-lg font-bold dark:bg-gray-700 dark:text-white border border-gray-200 dark:border-gray-600 rounded-xl py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-              <button onclick="adjustValue('reps-{{ se.pk }}', 1)" type="button"
+              <button onclick="adjustValue('reps-{{ active_exercise.pk }}', 1)" type="button"
                       class="w-9 h-10 rounded-xl bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-200 font-bold text-lg flex items-center justify-center active:scale-95 transition-transform">+</button>
             </div>
           </div>
           <div>
             <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1 text-center">Peso (kg)</label>
             <div class="flex items-center gap-1">
-              <button onclick="adjustValue('weight-{{ se.pk }}', -2.5)" type="button"
+              <button onclick="adjustValue('weight-{{ active_exercise.pk }}', -2.5)" type="button"
                       class="w-9 h-10 rounded-xl bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-200 font-bold text-lg flex items-center justify-center active:scale-95 transition-transform">−</button>
-              <input type="number" id="weight-{{ se.pk }}" value="0" min="0" step="2.5"
+              <input type="number" id="weight-{{ active_exercise.pk }}" value="0" min="0" step="2.5"
                      class="flex-1 text-center text-lg font-bold dark:bg-gray-700 dark:text-white border border-gray-200 dark:border-gray-600 rounded-xl py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-              <button onclick="adjustValue('weight-{{ se.pk }}', 2.5)" type="button"
+              <button onclick="adjustValue('weight-{{ active_exercise.pk }}', 2.5)" type="button"
                       class="w-9 h-10 rounded-xl bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-200 font-bold text-lg flex items-center justify-center active:scale-95 transition-transform">+</button>
             </div>
           </div>
           <div class="pb-0.5"></div>
         </div>
         {% endif %}
-        <button onclick="logSet({{ se.pk }})" type="button"
+        <button onclick="logSet({{ active_exercise.pk }})" type="button"
                 class="w-full py-3.5 rounded-xl bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 active:scale-[0.98] transition-all touch-target shadow-sm">
           + Añadir serie
         </button>
       </div>
+    </div>
 
-    </div>
-    {% empty %}
-    <div id="empty-state" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-10 text-center">
-      <div class="w-14 h-14 bg-gray-100 dark:bg-gray-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
-        <svg class="w-7 h-7 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+    <!-- Add Exercise Button (positioned below active exercise) -->
+    {% if not session.completed %}
+    <button onclick="openAddSheet()"
+            class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-3.5 rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-sm font-semibold hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-colors active:scale-95 touch-target border border-blue-200 dark:border-blue-700">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+      </svg>
+      Añadir ejercicio
+    </button>
+    {% endif %}
+
+    <!-- Completed Exercises (Collapsible) -->
+    {% if completed_exercises %}
+    <div class="pt-2">
+      <button onclick="toggleCompletedExercises()" type="button"
+              class="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700/60 text-gray-900 dark:text-white font-semibold text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+        <span>Ejercicios completados ({{ completed_exercises|length }})</span>
+        <svg id="completed-toggle-icon" class="w-4 h-4 transform transition-transform" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
         </svg>
-      </div>
-      <p class="text-gray-500 dark:text-gray-400 text-base font-medium mb-1">Sin ejercicios aún</p>
-      <p class="text-gray-400 dark:text-gray-500 text-sm mb-5">Añade ejercicios para empezar a registrar tu sesión.</p>
-      <button onclick="openAddSheet()"
-              class="inline-flex items-center gap-2 font-semibold rounded-xl bg-blue-600 text-white px-6 py-3 text-sm hover:bg-blue-700 touch-target">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
-        </svg>
-        Añadir ejercicio
       </button>
+      <div id="completed-exercises-list" class="hidden mt-2 space-y-2">
+        {% for se in completed_exercises %}
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden p-4" id="exercise-{{ se.pk }}" data-exercise-id="{{ se.exercise.pk }}" data-exercise-type="{{ se.exercise.exercise_type }}">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-semibold text-gray-900 dark:text-white text-sm">{{ se.exercise.name }}</h3>
+              <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                {{ se.exercise.get_exercise_type_display }}
+                &middot; <span id="count-{{ se.pk }}">{{ se.sets_completed }}</span> serie{{ se.sets_completed|pluralize:"s" }}
+              </p>
+            </div>
+            <span class="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 text-sm font-bold flex items-center justify-center">
+              {{ se.sets_completed }}
+            </span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
     </div>
-    {% endfor %}
+    {% endif %}
   </div>
+  {% else %}
+  <!-- Empty State -->
+  <div id="empty-state" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-10 text-center">
+    <div class="w-14 h-14 bg-gray-100 dark:bg-gray-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
+      <svg class="w-7 h-7 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+      </svg>
+    </div>
+    <p class="text-gray-500 dark:text-gray-400 text-base font-medium mb-1">Sin ejercicios aún</p>
+    <p class="text-gray-400 dark:text-gray-500 text-sm mb-5">Añade ejercicios para empezar a registrar tu sesión.</p>
+    <button onclick="openAddSheet()"
+            class="inline-flex items-center gap-2 font-semibold rounded-xl bg-blue-600 text-white px-6 py-3 text-sm hover:bg-blue-700 touch-target">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+      </svg>
+      Añadir ejercicio
+    </button>
+  </div>
+  {% endif %}
 
   <!-- Finalizar sesión -->
   {% if not session.completed %}
@@ -396,6 +429,15 @@
     toast.textContent = msg;
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 3000);
+  }
+
+  function toggleCompletedExercises() {
+    const list = document.getElementById('completed-exercises-list');
+    const icon = document.getElementById('completed-toggle-icon');
+    if (list) {
+      list.classList.toggle('hidden');
+      icon.style.transform = list.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+    }
   }
 </script>
 {% endblock %}
