@@ -75,7 +75,7 @@ class HealthSyncLog(models.Model):
         related_name='health_sync_logs', verbose_name='Usuario'
     )
     session = models.ForeignKey(
-        'sessions.WorkoutSession', on_delete=models.SET_NULL,
+        'workout_sessions.WorkoutSession', on_delete=models.SET_NULL,
         null=True, blank=True, verbose_name='Sesión'
     )
     provider = models.CharField(max_length=30, verbose_name='Proveedor')
