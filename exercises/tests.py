@@ -105,10 +105,13 @@ class ExerciseCreateViewTest(TestCase):
         self.client.login(username='admin', password='pass1234!')
         r = self.client.post(reverse('exercises:create'), {
             'name': 'New Exercise',
+            'description': 'A test exercise',
             'exercise_type': 'strength',
             'is_public': True,
             'muscle_groups': [],
-        })
+            'met_value': 5.0,
+            'rest_time': 60,
+        }, follow=True)
         self.assertTrue(Exercise.objects.filter(name='New Exercise').exists())
 
 
