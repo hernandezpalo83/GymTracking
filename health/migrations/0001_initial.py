@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('sessions', '0001_initial'),
+        ('workout_sessions', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
@@ -84,7 +84,7 @@ class Migration(migrations.Migration):
                 ('session', models.ForeignKey(
                     blank=True, null=True,
                     on_delete=django.db.models.deletion.SET_NULL,
-                    to='sessions.workoutsession',
+                    to='workout_sessions.workoutsession',
                     verbose_name='Sesión',
                 )),
             ],

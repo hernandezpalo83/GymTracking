@@ -114,7 +114,7 @@ class ExerciseSet(models.Model):
         max_digits=8, decimal_places=2, null=True, blank=True,
         verbose_name='Distancia (m)'
     )
-    completed = models.BooleanField(default=True, verbose_name='Completada')
+    completed = models.BooleanField(default=False, verbose_name='Completada')
     notes = models.TextField(blank=True, verbose_name='Notas')
 
     class Meta:

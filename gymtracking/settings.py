@@ -32,7 +32,7 @@ _base_apps = [
     'users',
     'exercises',
     'plans',
-    'sessions',
+    'sessions.apps.SessionsConfig',
     'reports',
     'config',
     'health',

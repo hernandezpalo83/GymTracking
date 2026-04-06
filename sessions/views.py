@@ -234,7 +234,7 @@ def log_set(request, session_exercise_pk):
         weight=float(weight) if weight is not None else None,
         duration_seconds=int(duration_seconds) if duration_seconds is not None else None,
         distance_meters=float(distance_meters) if distance_meters is not None else None,
-        completed=True,
+        completed=False,
     )
 
     # Update sets_completed count
