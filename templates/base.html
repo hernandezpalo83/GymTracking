@@ -71,9 +71,23 @@
       .touch-target { min-height: 48px; min-width: 48px; }
       /* Sidebar always dark */
       .sidebar-nav { background: #0f172a; }
+
       /* Smooth transitions for theme switch */
       *, *::before, *::after { transition-property: color, background-color, border-color; transition-duration: 150ms; }
       a, button { transition-duration: 100ms; }
+
+      /* Explicit dark mode styles for immediate visual feedback */
+      html.dark {
+        color-scheme: dark;
+      }
+      html.dark body {
+        background-color: #020617;
+        color: #e2e8f0;
+      }
+      html:not(.dark) body {
+        background-color: #f1f5f9;
+        color: #1e293b;
+      }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
@@ -278,9 +292,20 @@ function toggleDarkMode() {
 
     var isDark = html.classList.toggle('dark');
     console.log('Dark mode toggled:', isDark);
+    console.log('HTML classes:', html.className);
 
     // Guardar en localStorage
     localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+
+    // Forzar que Tailwind recalcule (workaround para CDN)
+    if (window.tailwind) {
+      console.log('Recalculando estilos de Tailwind...');
+      // Trigger recompilation by modifying and restoring a dummy class
+      html.classList.add('__tailwind-recalc');
+      setTimeout(function() {
+        html.classList.remove('__tailwind-recalc');
+      }, 10);
+    }
 
     {% if user.is_authenticated %}
     // Guardar en la base de datos
