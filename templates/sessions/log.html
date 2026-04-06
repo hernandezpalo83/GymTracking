@@ -42,7 +42,7 @@
   <!-- Active Exercise -->
   {% if active_exercise %}
   <div id="exercises-container" class="space-y-5">
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-blue-200 dark:border-blue-700 overflow-hidden" id="exercise-{{ active_exercise.pk }}" data-exercise-id="{{ active_exercise.exercise.pk }}" data-exercise-type="{{ active_exercise.exercise.exercise_type }}"
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-blue-200 dark:border-blue-700 overflow-hidden" id="exercise-{{ active_exercise.pk }}" data-exercise-id="{{ active_exercise.exercise.pk }}" data-exercise-type="{{ active_exercise.exercise.exercise_type }}">
 
       <!-- Exercise header (ACTIVE) -->
       <div class="flex items-center justify-between px-4 py-3.5 bg-blue-50 dark:bg-blue-900/20 border-b border-blue-200 dark:border-blue-700">
@@ -513,13 +513,13 @@
     const csrf = document.getElementById('csrf-token').value;
     const sessionPk = {{ session.pk }};
 
-    const formData = new FormData();
-    formData.append('exercise', exerciseId);
+    const params = new URLSearchParams();
+    params.append('exercise', exerciseId);
 
     fetch(`/sessions/${sessionPk}/add-exercise/`, {
       method: 'POST',
-      headers: { 'X-CSRFToken': csrf, 'X-Requested-With': 'XMLHttpRequest' },
-      body: formData
+      headers: { 'X-CSRFToken': csrf, 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params
     })
     .then(r => r.json())
     .then(data => {
@@ -531,8 +531,16 @@
           location.reload();
         }, 1500);
       } else {
-        showError('Error al agregar ejercicio');
-        console.error('Errors:', data.errors);
+        let errorMsg = 'Error al agregar ejercicio: ';
+        if (data.errors) {
+          const errorDetails = Object.entries(data.errors)
+            .map(([field, msgs]) => `${field}: ${msgs.join(', ')}`)
+            .join('; ');
+          errorMsg += errorDetails;
+        }
+        showError(errorMsg);
+        console.error('Form errors:', data.errors);
+        console.error('Full response:', data);
       }
     })
     .catch(err => {
@@ -645,6 +653,15 @@
     // Briefly show an error toast
     const toast = document.createElement('div');
     toast.className = 'fixed top-4 left-4 right-4 z-50 bg-red-600 text-white px-4 py-3 rounded-xl text-sm font-medium shadow-lg';
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
+
+  function showSuccess(msg) {
+    // Briefly show a success toast
+    const toast = document.createElement('div');
+    toast.className = 'fixed top-4 left-4 right-4 z-50 bg-green-600 text-white px-4 py-3 rounded-xl text-sm font-medium shadow-lg';
     toast.textContent = msg;
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 3000);

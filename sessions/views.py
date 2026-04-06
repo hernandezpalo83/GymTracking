@@ -8,7 +8,10 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.db import models
 import json
+import logging
 from datetime import date
+
+logger = logging.getLogger(__name__)
 
 from .models import WorkoutSession, SessionExercise, ExerciseSet, PersonalRecord
 from .forms import WorkoutSessionForm, SessionExerciseForm, ExerciseSetForm
@@ -204,7 +207,16 @@ def add_exercise_to_session(request, session_pk):
         return redirect('sessions:log', pk=session_pk)
     else:
         if is_ajax:
-            return JsonResponse({'success': False, 'errors': form.errors})
+            # Convert form errors to a readable format for debugging
+            errors_dict = {}
+            for field, errors in form.errors.items():
+                errors_dict[field] = [str(error) for error in errors]
+            logger.error(f"Form validation failed for session {session_pk}: {errors_dict}")
+            logger.error(f"POST data received: {dict(request.POST)}")
+            return JsonResponse({
+                'success': False,
+                'errors': errors_dict
+            })
         return redirect('sessions:log', pk=session_pk)
 
 
