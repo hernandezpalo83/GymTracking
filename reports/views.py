@@ -16,6 +16,16 @@ from plans.models import TrainingPlan
 from sessions.models import WorkoutSession, ExerciseSet, SessionExercise, PersonalRecord
 from users.models import User
 
+from .utils import (
+    get_progress_data, get_exercise_data, get_all_exercises_data, get_type_data,
+    get_muscle_data, get_consistency_data, get_performance_data
+)
+from .forms import (
+    ProgressFilterForm, ExerciseFilterForm, TypeFilterForm,
+    MuscleFilterForm, ConsistencyFilterForm, PerformanceFilterForm
+)
+from .pdf_generator import export_report_to_pdf
+
 
 # ---------------------------------------------------------------------------
 # Helper utilities
@@ -857,6 +867,178 @@ def user_activity_view(request):
         'range_shortcuts': range_shortcuts,
     }
     return render(request, 'reports/user_activity.html', context)
+
+
+# ==================== NUEVOS INFORMES (6 COMPLETOS) ====================
+
+from .utils import (
+    get_progress_data, get_exercise_data, get_type_data,
+    get_muscle_data, get_consistency_data, get_performance_data
+)
+from .forms import (
+    ProgressFilterForm, ExerciseFilterForm, TypeFilterForm,
+    MuscleFilterForm, ConsistencyFilterForm, PerformanceFilterForm
+)
+from .pdf_generator import export_report_to_pdf
+
+
+@login_required
+def reports_list(request):
+    """
+    Lista de selección de informes disponibles
+    """
+    context = {
+        'title': 'Mis Informes',
+    }
+    return render(request, 'reports/informe_list.html', context)
+
+
+@login_required
+def report_progress(request):
+    """
+    Informe: Progreso Personal
+    """
+    form = ProgressFilterForm(request.GET)
+    period = request.GET.get('period', 'month')
+    exercise_type = request.GET.get('exercise_type', '')
+
+    data = get_progress_data(request.user, period, exercise_type or None)
+
+    context = {
+        'form': form,
+        'data': data,
+        'title': 'Mi Progreso',
+        'report_type': 'progress',
+    }
+    return render(request, 'reports/informe_progress.html', context)
+
+
+@login_required
+def report_exercise(request):
+    """
+    Informe: Por Ejercicio
+    """
+    form = ExerciseFilterForm(request.GET)
+    period = request.GET.get('period', 'month')
+    exercise_type = request.GET.get('exercise_type', '')
+
+    data = get_all_exercises_data(request.user, period, exercise_type or None)
+
+    context = {
+        'form': form,
+        'data': data,
+        'title': 'Por Ejercicio',
+        'report_type': 'exercise',
+    }
+    return render(request, 'reports/informe_exercise.html', context)
+
+
+@login_required
+def report_type(request):
+    """
+    Informe: Por Tipo de Ejercicio
+    """
+    form = TypeFilterForm(request.GET)
+    period = request.GET.get('period', 'month')
+
+    data = get_type_data(request.user, period)
+
+    context = {
+        'form': form,
+        'data': data,
+        'title': 'Por Tipo de Ejercicio',
+        'report_type': 'type',
+    }
+    return render(request, 'reports/informe_type.html', context)
+
+
+@login_required
+def report_muscle(request):
+    """
+    Informe: Por Grupo Muscular
+    """
+    form = MuscleFilterForm(request.GET)
+    period = request.GET.get('period', 'month')
+    muscle_group = request.GET.get('muscle_group', '')
+
+    data = get_muscle_data(request.user, period, muscle_group or None)
+
+    context = {
+        'form': form,
+        'data': data,
+        'title': 'Por Grupo Muscular',
+        'report_type': 'muscle',
+    }
+    return render(request, 'reports/informe_muscle.html', context)
+
+
+@login_required
+def report_consistency(request):
+    """
+    Informe: Consistencia
+    """
+    form = ConsistencyFilterForm(request.GET)
+    weeks = int(request.GET.get('weeks', 4))
+
+    data = get_consistency_data(request.user, weeks)
+
+    context = {
+        'form': form,
+        'data': data,
+        'title': 'Mi Consistencia',
+        'report_type': 'consistency',
+    }
+    return render(request, 'reports/informe_consistency.html', context)
+
+
+@login_required
+def report_performance(request):
+    """
+    Informe: Rendimiento (Score)
+    """
+    form = PerformanceFilterForm(request.GET)
+    period = request.GET.get('period', 'month')
+
+    data = get_performance_data(request.user, period)
+
+    context = {
+        'form': form,
+        'data': data,
+        'title': 'Mi Rendimiento',
+        'report_type': 'performance',
+    }
+    return render(request, 'reports/informe_performance.html', context)
+
+
+@login_required
+def export_report_pdf(request):
+    """
+    Exportar informe a PDF
+    """
+    report_type = request.POST.get('report_type', 'progress')
+    period = request.POST.get('period', 'month')
+    exercise_type = request.POST.get('exercise_type', '')
+    exercise_id = request.POST.get('exercise_id')
+    muscle_group = request.POST.get('muscle_group', '')
+    weeks = int(request.POST.get('weeks', 4))
+
+    kwargs = {
+        'period': period,
+        'exercise_type': exercise_type or None,
+        'exercise_id': exercise_id,
+        'muscle_group': muscle_group or None,
+        'weeks': weeks,
+    }
+
+    pdf_buffer = export_report_to_pdf(request.user, report_type, **kwargs)
+
+    if pdf_buffer:
+        response = HttpResponse(pdf_buffer.getvalue(), content_type='application/pdf')
+        filename = f"Informe_{report_type}_{date.today().strftime('%Y%m%d')}.pdf"
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
+
+    return redirect('reports:reports_list')
 
 
 # ---------------------------------------------------------------------------
