@@ -19,13 +19,22 @@
     <link rel="preload" as="script" href="https://cdn.tailwindcss.com">
 
     <script>
-    // Dark mode: apply immediately from localStorage to avoid flash
+    // Dark mode: sincronizar localStorage con el estado actual del servidor
+    // El servidor ya renderiza con la clase 'dark' si user.dark_mode = True
     (function() {
-      var dm = localStorage.getItem('darkMode');
-      if (dm === 'true') {
-        document.documentElement.classList.add('dark');
-      } else if (dm === 'false') {
-        document.documentElement.classList.remove('dark');
+      var html = document.documentElement;
+      var isDark = html.classList.contains('dark');
+      // Inicializar localStorage con el estado del servidor
+      if (!localStorage.getItem('darkMode')) {
+        localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+      } else {
+        // Si localStorage tiene un valor diferente, aplicarlo
+        var dm = localStorage.getItem('darkMode');
+        if (dm === 'true' && !isDark) {
+          html.classList.add('dark');
+        } else if (dm === 'false' && isDark) {
+          html.classList.remove('dark');
+        }
       }
     })();
 
