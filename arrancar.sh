@@ -83,7 +83,7 @@ case "$run_tests" in
         printf "🧪 Ejecutando tests unitarios...\n"
         printf "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}\n\n"
         export DJANGO_ENV=testing
-        python manage.py test --verbosity=2
+        PYTHONWARNINGS=ignore::UserWarning python manage.py test --verbosity=2
         test_exit_code=$?
         unset DJANGO_ENV
 
