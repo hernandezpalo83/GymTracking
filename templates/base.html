@@ -254,7 +254,8 @@
 function toggleDarkMode() {
   var html = document.getElementById('html-root');
   var isDark = html.classList.toggle('dark');
-  localStorage.setItem('darkMode', isDark);
+  // Guardar como string en localStorage (crucial: localStorage solo maneja strings)
+  localStorage.setItem('darkMode', isDark ? 'true' : 'false');
 
   {% if user.is_authenticated %}
   // Guardar la preferencia en la base de datos
