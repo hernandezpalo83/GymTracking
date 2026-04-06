@@ -85,6 +85,7 @@ class SessionExercise(models.Model):
         verbose_name='Ejercicio'
     )
     sets_completed = models.IntegerField(default=0, verbose_name='Series completadas')
+    is_active = models.BooleanField(default=True, verbose_name='Es activo')
     notes = models.TextField(blank=True, verbose_name='Notas')
 
     class Meta:

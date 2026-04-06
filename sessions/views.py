@@ -104,8 +104,9 @@ def session_log_view(request, pk):
     """Mobile-optimized session logging view."""
     import json as _json
     session = get_object_or_404(WorkoutSession, pk=pk, user=request.user)
-    # Ordenar por: ejercicios sin series completadas primero (activos), luego los completados
-    session_exercises = session.session_exercises.select_related('exercise').prefetch_related('sets').order_by('sets_completed', 'pk')
+    # Get all session exercises, ordering with active first
+    all_session_exercises = session.session_exercises.select_related('exercise').prefetch_related('sets').all()
+    session_exercises = sorted(all_session_exercises, key=lambda x: (not x.is_active, x.id))
 
     # Get plan exercises for today if plan is linked
     plan_exercises = []
@@ -137,9 +138,20 @@ def session_log_view(request, pk):
                 'distance_meters': float(last_set.distance_meters) if last_set.distance_meters else None,
             }
 
+    # Separate active and completed exercises
+    active_exercise = None
+    completed_exercises = []
+    for se in session_exercises:
+        if se.is_active:
+            active_exercise = se
+        else:
+            completed_exercises.append(se)
+
     context = {
         'session': session,
         'session_exercises': session_exercises,
+        'active_exercise': active_exercise,
+        'completed_exercises': completed_exercises,
         'plan_exercises': plan_exercises,
         'all_exercises': Exercise.objects.filter(is_public=True).order_by('name'),
         'add_exercise_form': SessionExerciseForm(),
@@ -156,8 +168,16 @@ def add_exercise_to_session(request, session_pk):
     session = get_object_or_404(WorkoutSession, pk=session_pk, user=request.user)
     form = SessionExerciseForm(request.POST)
     if form.is_valid():
+        # Mark the current active exercise as inactive
+        active_exercise = session.session_exercises.filter(is_active=True).first()
+        if active_exercise:
+            active_exercise.is_active = False
+            active_exercise.save()
+
+        # Create new session exercise and mark it as active
         session_exercise = form.save(commit=False)
         session_exercise.session = session
+        session_exercise.is_active = True
         session_exercise.save()
         # Find last-set prefill data
         last_set = ExerciseSet.objects.filter(
@@ -358,12 +378,16 @@ def repeat_session(request, pk):
     )
 
     # Copy each exercise but leave sets empty for the user to fill in
+    # Mark the first one as active
+    is_first = True
     for se in source.session_exercises.select_related('exercise').all():
         SessionExercise.objects.create(
             session=new_session,
             exercise=se.exercise,
+            is_active=is_first,
             notes='',
         )
+        is_first = False
 
     messages.success(
         request,
