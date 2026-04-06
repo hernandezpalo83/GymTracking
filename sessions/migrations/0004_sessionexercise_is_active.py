@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('sessions', '0003_personalrecord'),
+        ('workout_sessions', '0003_personalrecord'),
     ]
 
     operations = [

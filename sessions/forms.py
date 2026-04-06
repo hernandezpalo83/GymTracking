@@ -48,6 +48,13 @@ class SessionExerciseForm(forms.ModelForm):
             'notes': forms.Textarea(attrs={'class': INPUT_CLASS, 'rows': 2}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Only show public exercises
+        self.fields['exercise'].queryset = Exercise.objects.filter(is_public=True)
+        # Make notes optional
+        self.fields['notes'].required = False
+
 
 class ExerciseSetForm(forms.ModelForm):
     class Meta:
