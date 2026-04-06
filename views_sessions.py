@@ -19,15 +19,12 @@ class SessionListView(LoginRequiredMixin, ListView):
     model = WorkoutSession
     template_name = 'sessions/list.html'
     context_object_name = 'sessions'
-    paginate_by = 20
+    paginate_by = 10
 
     def get_queryset(self):
-        return (
-            WorkoutSession.objects
-            .filter(user=self.request.user)
-            .select_related('plan')
-            .prefetch_related('session_exercises__sets')
-        )
+        return WorkoutSession.objects.filter(
+            user=self.request.user
+        ).select_related('plan').prefetch_related('session_exercises')
 
 
 class SessionDetailView(LoginRequiredMixin, DetailView):
@@ -104,9 +101,7 @@ def session_log_view(request, pk):
     """Mobile-optimized session logging view."""
     import json as _json
     session = get_object_or_404(WorkoutSession, pk=pk, user=request.user)
-    # Get all session exercises, ordering with active first
-    all_session_exercises = session.session_exercises.select_related('exercise').prefetch_related('sets').all()
-    session_exercises = sorted(all_session_exercises, key=lambda x: (not x.is_active, x.id))
+    session_exercises = session.session_exercises.select_related('exercise').prefetch_related('sets').all()
 
     # Get plan exercises for today if plan is linked
     plan_exercises = []
@@ -138,20 +133,9 @@ def session_log_view(request, pk):
                 'distance_meters': float(last_set.distance_meters) if last_set.distance_meters else None,
             }
 
-    # Separate active and completed exercises
-    active_exercise = None
-    completed_exercises = []
-    for se in session_exercises:
-        if se.is_active:
-            active_exercise = se
-        else:
-            completed_exercises.append(se)
-
     context = {
         'session': session,
         'session_exercises': session_exercises,
-        'active_exercise': active_exercise,
-        'completed_exercises': completed_exercises,
         'plan_exercises': plan_exercises,
         'all_exercises': Exercise.objects.filter(is_public=True).order_by('name'),
         'add_exercise_form': SessionExerciseForm(),
@@ -168,16 +152,8 @@ def add_exercise_to_session(request, session_pk):
     session = get_object_or_404(WorkoutSession, pk=session_pk, user=request.user)
     form = SessionExerciseForm(request.POST)
     if form.is_valid():
-        # Mark the current active exercise as inactive
-        active_exercise = session.session_exercises.filter(is_active=True).first()
-        if active_exercise:
-            active_exercise.is_active = False
-            active_exercise.save()
-
-        # Create new session exercise and mark it as active
         session_exercise = form.save(commit=False)
         session_exercise.session = session
-        session_exercise.is_active = True
         session_exercise.save()
         # Find last-set prefill data
         last_set = ExerciseSet.objects.filter(
@@ -278,10 +254,6 @@ def complete_session(request, pk):
     if not session.end_time:
         session.end_time = datetime.now().time()
     session.save()
-
-    # Auto-sync to Google Fit if the user has it connected
-    _try_sync_to_health(request, session)
-
     messages.success(request, '¡Sesión completada! ¡Buen trabajo!')
     return redirect('sessions:detail', pk=pk)
 
@@ -340,58 +312,3 @@ def finish_exercise(request, session_pk, exercise_pk):
         })
 
     return redirect('sessions:log', pk=session_pk)
-
-
-def _try_sync_to_health(request, session):
-    """Best-effort sync of a completed session to the user's connected health service."""
-    try:
-        from health.models import HealthConnection, HealthSyncLog
-        from health import google_fit
-        connection = request.user.health_connection
-        result = google_fit.write_workout(connection, session)
-        HealthSyncLog.objects.create(
-            user=request.user,
-            session=session,
-            provider='google_fit',
-            sync_type='workout',
-            status='success' if not result.get('skipped') else 'skipped',
-            data=result,
-        )
-    except Exception:
-        # Never crash the session completion flow due to health sync failures
-        pass
-
-
-@login_required
-@require_POST
-def repeat_session(request, pk):
-    """Create a new session today by copying the exercise structure (no sets) from a past session."""
-    source = get_object_or_404(WorkoutSession, pk=pk, user=request.user)
-    from datetime import datetime
-
-    new_session = WorkoutSession.objects.create(
-        user=request.user,
-        plan=source.plan,
-        date=date.today(),
-        start_time=datetime.now().time(),
-        notes='',
-    )
-
-    # Copy each exercise but leave sets empty for the user to fill in
-    # Mark the first one as active
-    is_first = True
-    for se in source.session_exercises.select_related('exercise').all():
-        SessionExercise.objects.create(
-            session=new_session,
-            exercise=se.exercise,
-            is_active=is_first,
-            notes='',
-        )
-        is_first = False
-
-    messages.success(
-        request,
-        f'Sesión creada basándose en el entrenamiento del {source.date.strftime("%d/%m/%Y")}. '
-        '¡Registra tus series!'
-    )
-    return redirect('sessions:log', pk=new_session.pk)

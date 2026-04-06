@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}Informe: Mi Progreso{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <a href="{% url 'reports:reports_list' %}" class="inline-flex items-center text-blue-600 hover:text-blue-800 mb-3">
+                ← Volver a informes
+            </a>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">📈 Mi Progreso</h1>
+        </div>
+        <form method="post" action="{% url 'reports:export_pdf' %}" class="inline">
+            {% csrf_token %}
+            <input type="hidden" name="report_type" value="progress">
+            <input type="hidden" name="period" value="{{ form.cleaned_data.period|default:form.period.initial }}">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold">
+                ⬇️ Descargar PDF
+            </button>
+        </form>
+    </div>
+
+    <!-- Filtros -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 mb-6">
+        <form method="get" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Período</label>
+                <select name="period" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg">
+                    <option value="week" {% if form.period.initial == 'week' %}selected{% endif %}>Última semana</option>
+                    <option value="month" {% if form.period.initial == 'month' %}selected{% endif %}>Último mes</option>
+                    <option value="90d" {% if form.period.initial == '90d' %}selected{% endif %}>Últimos 90 días</option>
+                    <option value="year" {% if form.period.initial == 'year' %}selected{% endif %}>Último año</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Tipo de Ejercicio</label>
+                <select name="exercise_type" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg">
+                    <option value="">Todos</option>
+                    <option value="strength">Fuerza</option>
+                    <option value="cardio">Cardio</option>
+                    <option value="flexibility">Flexibilidad</option>
+                </select>
+            </div>
+
+            <div class="flex items-end">
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold">
+                    Aplicar Filtros
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Estadísticas Principales -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 text-center">
+            <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">Sesiones</p>
+            <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ data.sessions_count }}</p>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 text-center">
+            <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">Volumen Total</p>
+            <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ data.total_volume|floatformat:0 }}</p>
+            <p class="text-xs text-gray-500">kg</p>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 text-center">
+            <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">Calorías</p>
+            <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ data.total_calories|floatformat:0 }}</p>
+            <p class="text-xs text-gray-500">kcal</p>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 text-center">
+            <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">Progreso</p>
+            <p class="text-3xl font-bold {% if data.progress > 0 %}text-green-600{% elif data.progress < 0 %}text-red-600{% else %}text-gray-600{% endif %}">
+                {% if data.progress > 0 %}+{% endif %}{{ data.progress|floatformat:1 }}%
+            </p>
+        </div>
+    </div>
+
+    <!-- Duración Promedio -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 mb-6">
+        <p class="text-gray-600 dark:text-gray-400 mb-2">Duración Promedio por Sesión</p>
+        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ data.avg_duration }} minutos</p>
+    </div>
+
+    <!-- Tabla de Sesiones -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 dark:bg-gray-700/50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Fecha</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Plan</th>
+                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">Volumen</th>
+                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white">Duración</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                    {% for session in data.sessions %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+                        <td class="px-6 py-4 text-gray-900 dark:text-white">{{ session.date|date:"d/m/Y" }}</td>
+                        <td class="px-6 py-4 text-gray-700 dark:text-gray-300">{{ session.plan.name|default:"Libre" }}</td>
+                        <td class="px-6 py-4 text-center text-gray-900 dark:text-white font-semibold">
+                            {{ session.get_total_volume|floatformat:0 }} kg
+                        </td>
+                        <td class="px-6 py-4 text-center text-gray-700 dark:text-gray-300">
+                            {{ session.get_duration_minutes }} min
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                            No hay sesiones en este período
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
