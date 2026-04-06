@@ -61,33 +61,50 @@
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+      /* CSS Variables para tema dinámico */
+      :root {
+        --bg-primary: #f1f5f9;
+        --bg-secondary: #f8fafc;
+        --bg-tertiary: #e2e8f0;
+        --text-primary: #1e293b;
+        --text-secondary: #64748b;
+        --border-color: #e2e8f0;
+      }
+
+      html.dark {
+        --bg-primary: #020617;
+        --bg-secondary: #0f172a;
+        --bg-tertiary: #1e293b;
+        --text-primary: #e2e8f0;
+        --text-secondary: #cbd5e1;
+        --border-color: #334155;
+      }
+
+      html { color-scheme: light; }
+      html.dark { color-scheme: dark; }
+
+      body {
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+      }
+
       .bottom-nav-safe { padding-bottom: env(safe-area-inset-bottom); }
       @media (max-width: 1023px) { .app-body { padding-bottom: 72px; } }
+
       /* Scrollbar hide */
       .scrollbar-hide::-webkit-scrollbar { display: none; }
       .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
       /* Touch targets */
       .touch-target { min-height: 48px; min-width: 48px; }
+
       /* Sidebar always dark */
       .sidebar-nav { background: #0f172a; }
 
       /* Smooth transitions for theme switch */
       *, *::before, *::after { transition-property: color, background-color, border-color; transition-duration: 150ms; }
       a, button { transition-duration: 100ms; }
-
-      /* Explicit dark mode styles for immediate visual feedback */
-      html.dark {
-        color-scheme: dark;
-      }
-      html.dark body {
-        background-color: #020617;
-        color: #e2e8f0;
-      }
-      html:not(.dark) body {
-        background-color: #f1f5f9;
-        color: #1e293b;
-      }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
@@ -308,7 +325,7 @@ function toggleDarkMode() {
     }
 
     {% if user.is_authenticated %}
-    // Guardar en la base de datos
+    // Guardar en la base de datos y recargar para aplicar estilos
     fetch('{% url "users:toggle_dark_mode" %}', {
       method: 'POST',
       headers: {
@@ -320,16 +337,20 @@ function toggleDarkMode() {
     .then(function(response) {
       if (!response.ok) {
         console.error('Error al guardar preferencia (status ' + response.status + ')');
+        darkModeToggling = false;
+        return;
       }
       return response.json();
     })
     .then(function(data) {
       console.log('Preferencia guardada:', data);
+      // Recargar la página después de 200ms para aplicar estilos del servidor
+      setTimeout(function() {
+        location.reload();
+      }, 200);
     })
     .catch(function(error) {
       console.error('Error al guardar preferencia:', error);
-    })
-    .finally(function() {
       darkModeToggling = false;
     });
     {% else %}
