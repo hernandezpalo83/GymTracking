@@ -260,31 +260,60 @@
 {% block extra_js %}{% endblock %}
 
 <script>
-function toggleDarkMode() {
-  var html = document.getElementById('html-root');
-  var isDark = html.classList.toggle('dark');
-  // Guardar como string en localStorage (crucial: localStorage solo maneja strings)
-  localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+// Flag para evitar múltiples toggles simultáneos
+var darkModeToggling = false;
 
-  {% if user.is_authenticated %}
-  // Guardar la preferencia en la base de datos
-  fetch('{% url "users:toggle_dark_mode" %}', {
-    method: 'POST',
-    headers: {
-      'X-CSRFToken': '{{ csrf_token }}',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ dark_mode: isDark })
-  })
-  .then(function(response) {
-    if (!response.ok) {
-      console.error('Error al guardar preferencia de tema');
+function toggleDarkMode() {
+  // Evitar múltiples ejecuciones simultáneas
+  if (darkModeToggling) return;
+  darkModeToggling = true;
+
+  try {
+    var html = document.getElementById('html-root');
+    if (!html) {
+      console.error('html-root no encontrado');
+      darkModeToggling = false;
+      return;
     }
-  })
-  .catch(function(error) {
-    console.error('Error al guardar preferencia:', error);
-  });
-  {% endif %}
+
+    var isDark = html.classList.toggle('dark');
+    console.log('Dark mode toggled:', isDark);
+
+    // Guardar en localStorage
+    localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+
+    {% if user.is_authenticated %}
+    // Guardar en la base de datos
+    fetch('{% url "users:toggle_dark_mode" %}', {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ dark_mode: isDark })
+    })
+    .then(function(response) {
+      if (!response.ok) {
+        console.error('Error al guardar preferencia (status ' + response.status + ')');
+      }
+      return response.json();
+    })
+    .then(function(data) {
+      console.log('Preferencia guardada:', data);
+    })
+    .catch(function(error) {
+      console.error('Error al guardar preferencia:', error);
+    })
+    .finally(function() {
+      darkModeToggling = false;
+    });
+    {% else %}
+    darkModeToggling = false;
+    {% endif %}
+  } catch (e) {
+    console.error('Error en toggleDarkMode:', e);
+    darkModeToggling = false;
+  }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
