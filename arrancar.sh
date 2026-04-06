@@ -79,18 +79,23 @@ printf "${BLUE}¿Ejecutar tests unitarios? (y/n): ${NC}"
 read -r run_tests
 case "$run_tests" in
     [yY]|[yY][eE][sS])
-        printf "🧪 Ejecutando tests...\n"
+        printf "\n${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}\n"
+        printf "🧪 Ejecutando tests unitarios...\n"
+        printf "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}\n\n"
         export DJANGO_ENV=testing
-        python manage.py test
+        PYTHONWARNINGS=ignore::UserWarning python manage.py test --verbosity=2
         test_exit_code=$?
         unset DJANGO_ENV
 
+        printf "\n${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}\n"
         if [ $test_exit_code -ne 0 ]; then
-            printf "${RED}❌ Tests fallidos. Abortando.${NC}\n"
+            printf "${RED}❌ Tests fallidos. Revisa los errores arriba. Abortando.${NC}\n"
+            printf "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}\n"
             exit 1
         fi
 
-        printf "${GREEN}✅ Todos los tests han pasado.\n${NC}"
+        printf "${GREEN}✅ Todos los tests han pasado correctamente.${NC}\n"
+        printf "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}\n"
 
         printf "${BLUE}¿Arrancar el servidor ahora? (y/n): ${NC}"
         read -r run_after_test
