@@ -81,7 +81,11 @@ WSGI_APPLICATION = 'gymtracking.wsgi.application'
 DATABASE_URL = config('DATABASE_URL', default=None)
 if DATABASE_URL:
     DATABASES = {
-        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=not DEBUG)
+        'default': dj_database_url.parse(
+            DATABASE_URL, 
+            conn_max_age=0,  # Cambiado de 600 a 0 para cerrar conexiones inmediatamente
+            ssl_require=True  # Siempre requerir SSL en producción
+        )
     }
 else:
     DATABASES = {
